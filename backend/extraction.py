@@ -218,14 +218,75 @@ def _zoom_crop(image_path):
     return path
 
 
+# ── Tesseract fallback (used ONLY if Gemma errors; same trust layer applies) ─
+
+def _tesseract_extract(image_path):
+    """Classic OCR + deterministic label parsing. No LLM. Line items unavailable."""
+    import time as _t
+    import pytesseract
+    from PIL import Image
+    t0 = _t.time()
+    text = pytesseract.image_to_string(Image.open(image_path))
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    def grab(pattern, flags=re.I):
+        for l in lines:
+            m = re.search(pattern, l, flags)
+            if m:
+                return m.group(1).strip()
+        return ""
+
+    def money_after(label):
+        for l in lines:
+            if re.search(label, l, re.I):
+                nums = re.findall(r"[\d,]+\.\d{2}", l)
+                if nums:
+                    return norm_amount(nums[-1])
+        return None
+
+    gstins = re.findall(r"\b\d{2}[0-9A-Z]{13}\b", text.upper())
+    fields = {
+        "seller_name": lines[1] if len(lines) > 1 else "",
+        "seller_gstin": gstins[0] if gstins else "",
+        "buyer_name": "",  # filled from the line after "Bill To" below
+        "buyer_gstin": gstins[1] if len(gstins) > 1 else "",
+        "invoice_number": grab(r"Invoice\s*No[:.]?\s*(\S+)"),
+        "invoice_date": grab(r"Date[:.]?\s*([\d/\-]+)"),
+        "line_items": [],
+        "taxable_value": money_after(r"Taxable\s*Value"),
+        "cgst": money_after(r"CGST"),
+        "sgst": money_after(r"SGST"),
+        "total": money_after(r"TOTAL"),
+    }
+    # buyer name = first non-empty line after "Bill To"
+    for i, l in enumerate(lines):
+        if re.match(r"Bill\s*To", l, re.I) and i + 1 < len(lines):
+            fields["buyer_name"] = re.sub(r"^Bill\s*To[:.]?\s*", "", l, flags=re.I) or lines[i + 1]
+            break
+    return fields, _t.time() - t0
+
+
 # ── full pipeline for one document ──────────────────────────────────────────
 
 def extract(image_path, two_pass=True):
     """Returns dict: fields, receipts (trust-ledger entries), review (field names),
-    timings {main, zoom}. Raises on model failure."""
-    raw, t_main = gemma.generate_json(MAIN_PROMPT, image_path=image_path, schema=INVOICE_SCHEMA)
+    timings {main, zoom}. Falls back to Tesseract OCR if Gemma errors."""
+    engine = "gemma"
+    try:
+        raw, t_main = gemma.generate_json(MAIN_PROMPT, image_path=image_path, schema=INVOICE_SCHEMA)
+    except Exception as gemma_err:
+        try:
+            raw, t_main = _tesseract_extract(image_path)
+            engine = "tesseract"
+        except Exception as tess_err:
+            raise RuntimeError(f"Gemma failed ({gemma_err}); Tesseract fallback also failed ({tess_err})")
     g = json.loads(json.dumps(raw))
     receipts, t_zoom = [], 0.0
+    if engine == "tesseract":
+        two_pass = False  # zoom re-read needs Gemma
+        receipts.append({"kind": "review", "field": "engine",
+                         "msg": "Gemma unreachable → pytesseract fallback used. Line items "
+                                "unavailable; all fields still checksum/arithmetic-verified."})
 
     g = repair_money(g, receipts)
 

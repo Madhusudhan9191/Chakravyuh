@@ -1,10 +1,641 @@
 {
- "invoices": [],
- "alerts": [],
+ "invoices": [
+  {
+   "id": "inv_demo01",
+   "file": "invoice_01_agni.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_01_agni.png",
+   "fields": {
+    "seller_name": "AGNI TRADERS PVT LTD",
+    "seller_gstin": "29AABCA1111A1ZN",
+    "buyer_name": "BHAIRAV METALS",
+    "buyer_gstin": "29AABCB2222B1ZE",
+    "invoice_number": "ATP/2026-27/0792",
+    "invoice_date": "2026-06-02",
+    "line_items": [
+     {
+      "description": "MS Steel Pipes 50mm",
+      "hsn": "7306",
+      "qty": 10,
+      "rate": 3431.62,
+      "amount": 34316.18
+     },
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 5,
+      "rate": 12136.76,
+      "amount": 60683.82
+     }
+    ],
+    "taxable_value": 95000,
+    "cgst": 8550.0,
+    "sgst": 8550.0,
+    "total": 112100.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo02",
+   "file": "invoice_02_bhairav.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_02_bhairav.png",
+   "fields": {
+    "seller_name": "BHAIRAV METALS",
+    "seller_gstin": "29AABCB2222B1ZE",
+    "buyer_name": "CHAKOR ALLOYS",
+    "buyer_gstin": "29AABCC3333C1Z5",
+    "invoice_number": "BM/2026-27/0338",
+    "invoice_date": "2026-06-06",
+    "line_items": [
+     {
+      "description": "Copper Wire 4sqmm",
+      "hsn": "7408",
+      "qty": 5,
+      "rate": 5604.61,
+      "amount": 28023.06
+     },
+     {
+      "description": "Industrial Solvent Grade-A",
+      "hsn": "2902",
+      "qty": 10,
+      "rate": 6297.69,
+      "amount": 62976.94
+     }
+    ],
+    "taxable_value": 91000,
+    "cgst": 8190.0,
+    "sgst": 8190.0,
+    "total": 107380.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo03",
+   "file": "invoice_03_chakor.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_03_chakor.png",
+   "fields": {
+    "seller_name": "CHAKOR ALLOYS",
+    "seller_gstin": "29AABCC3333C1Z5",
+    "buyer_name": "AGNI TRADERS PVT LTD",
+    "buyer_gstin": "29AABCA1111A1ZN",
+    "invoice_number": "CA/2026-27/0325",
+    "invoice_date": "2026-06-13",
+    "line_items": [
+     {
+      "description": "Copper Wire 4sqmm",
+      "hsn": "7408",
+      "qty": 120,
+      "rate": 373.22,
+      "amount": 44786.96
+     },
+     {
+      "description": "GI Coupling 50mm",
+      "hsn": "7307",
+      "qty": 50,
+      "rate": 974.26,
+      "amount": 48713.04
+     }
+    ],
+    "taxable_value": 93500,
+    "cgst": 8415.0,
+    "sgst": 8415.0,
+    "total": 110330.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo04",
+   "file": "invoice_04_agni.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_04_agni.png",
+   "fields": {
+    "seller_name": "AGNI TRADERS PVT LTD",
+    "seller_gstin": "29AABCA1111A1ZN",
+    "buyer_name": "DEEPAK CHEMICALS",
+    "buyer_gstin": "29AABCD4444D1ZW",
+    "invoice_number": "ATP/2026-27/0259",
+    "invoice_date": "2026-06-18",
+    "line_items": [
+     {
+      "description": "Copper Wire 4sqmm",
+      "hsn": "7408",
+      "qty": 10,
+      "rate": 10283.74,
+      "amount": 102837.39
+     },
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 24,
+      "rate": 2118.85,
+      "amount": 50852.39
+     },
+     {
+      "description": "MS Steel Pipes 50mm",
+      "hsn": "7306",
+      "qty": 24,
+      "rate": 2346.26,
+      "amount": 56310.22
+     }
+    ],
+    "taxable_value": 210000,
+    "cgst": 18900.0,
+    "sgst": 18900.0,
+    "total": 247800.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo05",
+   "file": "invoice_05_deepak.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_05_deepak.png",
+   "fields": {
+    "seller_name": "DEEPAK CHEMICALS",
+    "seller_gstin": "29AABCD4444D1ZW",
+    "buyer_name": "SHARMA TRADERS",
+    "buyer_gstin": "29AABCS5555S1ZG",
+    "invoice_number": "DC/2026-27/0967",
+    "invoice_date": "2026-06-24",
+    "line_items": [
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 5,
+      "rate": 21330.31,
+      "amount": 106651.53
+     },
+     {
+      "description": "MS Steel Pipes 50mm",
+      "hsn": "7306",
+      "qty": 24,
+      "rate": 9306.19,
+      "amount": 223348.47
+     }
+    ],
+    "taxable_value": 330000,
+    "cgst": 29700.0,
+    "sgst": 29700.0,
+    "total": 389400.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo06",
+   "file": "invoice_06_kaveri.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_06_kaveri.png",
+   "fields": {
+    "seller_name": "KAVERI STEEL TRADERS",
+    "seller_gstin": "29AABCK6666K1ZY",
+    "buyer_name": "ANAND FABRICATORS",
+    "buyer_gstin": "29AABCF7777F1Z8",
+    "invoice_number": "KST/2026-27/0665",
+    "invoice_date": "2026-06-05",
+    "line_items": [
+     {
+      "description": "Copper Wire 4sqmm",
+      "hsn": "7408",
+      "qty": 120,
+      "rate": 582.94,
+      "amount": 69952.78
+     },
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 50,
+      "rate": 497.12,
+      "amount": 24856.13
+     },
+     {
+      "description": "MS Steel Pipes 50mm",
+      "hsn": "7306",
+      "qty": 5,
+      "rate": 10038.22,
+      "amount": 50191.09
+     }
+    ],
+    "taxable_value": 145000,
+    "cgst": 13050.0,
+    "sgst": 13050.0,
+    "total": 171100.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo07",
+   "file": "invoice_07_lakshmi.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_07_lakshmi.png",
+   "fields": {
+    "seller_name": "LAKSHMI METAL WORKS",
+    "seller_gstin": "29AABCL8888L1ZJ",
+    "buyer_name": "KARNATAKA PRECISION TOOLS",
+    "buyer_gstin": "29AABCP9999P1Z1",
+    "invoice_number": "LMW/2026-27/0412",
+    "invoice_date": "2026-06-10",
+    "line_items": [
+     {
+      "description": "Welding Electrodes",
+      "hsn": "8311",
+      "qty": 5,
+      "rate": 7820.35,
+      "amount": 39101.75
+     },
+     {
+      "description": "Copper Wire 4sqmm",
+      "hsn": "7408",
+      "qty": 10,
+      "rate": 1522.97,
+      "amount": 15229.66
+     },
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 24,
+      "rate": 1402.86,
+      "amount": 33668.59
+     }
+    ],
+    "taxable_value": 88000,
+    "cgst": 7920.0,
+    "sgst": 7920.0,
+    "total": 103840.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo08",
+   "file": "invoice_08_lakshmi.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_08_lakshmi.png",
+   "fields": {
+    "seller_name": "LAKSHMI METAL WORKS",
+    "seller_gstin": "29AABCL8888L1ZJ",
+    "buyer_name": "KARNATAKA PRECISION TOOLS",
+    "buyer_gstin": "29AABCP9999P1Z1",
+    "invoice_number": "LMW/2026-27/0412",
+    "invoice_date": "2026-06-21",
+    "line_items": [
+     {
+      "description": "GI Coupling 50mm",
+      "hsn": "7307",
+      "qty": 50,
+      "rate": 695.26,
+      "amount": 34762.78
+     },
+     {
+      "description": "MS Steel Pipes 50mm",
+      "hsn": "7306",
+      "qty": 24,
+      "rate": 2218.22,
+      "amount": 53237.22
+     }
+    ],
+    "taxable_value": 88000,
+    "cgst": 7920.0,
+    "sgst": 7920.0,
+    "total": 103840.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  },
+  {
+   "id": "inv_demo09",
+   "file": "invoice_09_kaveri.png",
+   "path": "C:\\Users\\Parik\\Downloads\\chakra-v3 2\\chakra-v3\\backend\\demo\\invoice_09_kaveri.png",
+   "fields": {
+    "seller_name": "KAVERI STEEL TRADERS",
+    "seller_gstin": "29AABCK6666K1ZY",
+    "buyer_name": "SHARMA TRADERS",
+    "buyer_gstin": "29AABCS5555S1ZG",
+    "invoice_number": "KST/2026-27/0723",
+    "invoice_date": "2026-06-09",
+    "line_items": [
+     {
+      "description": "HR Sheets 2mm",
+      "hsn": "7208",
+      "qty": 24,
+      "rate": 1115.86,
+      "amount": 26780.63
+     },
+     {
+      "description": "Welding Electrodes",
+      "hsn": "8311",
+      "qty": 5,
+      "rate": 9843.87,
+      "amount": 49219.37
+     }
+    ],
+    "taxable_value": 76000,
+    "cgst": 6840.0,
+    "sgst": 6840.0,
+    "total": 89680.0
+   },
+   "receipts": [],
+   "review": [],
+   "timings": {}
+  }
+ ],
+ "alerts": [
+  {
+   "rule": "RING_EXPOSURE",
+   "severity": "CRITICAL",
+   "title": "Clean company 2 hops from a fraud ring",
+   "entity": "SHARMA TRADERS",
+   "entities": [
+    {
+     "gstin": "29AABCS5555S1ZG",
+     "name": "SHARMA TRADERS"
+    }
+   ],
+   "impact": 70092.0,
+   "impact_label": "ITC reversal + 18% interest at risk",
+   "invoice_ids": [
+    "inv_demo05"
+   ],
+   "path": [
+    {
+     "gstin": "29AABCA1111A1ZN",
+     "name": "AGNI TRADERS PVT LTD"
+    },
+    {
+     "gstin": "29AABCD4444D1ZW",
+     "name": "DEEPAK CHEMICALS"
+    },
+    {
+     "gstin": "29AABCS5555S1ZG",
+     "name": "SHARMA TRADERS"
+    }
+   ],
+   "why": "SHARMA TRADERS has clean books \u2014 but its supplier chain reaches a circular trading ring. Under CGST \u00a716(2) the input tax credit on those purchases (\u20b959,400) can be denied, plus 18% interest. They have never met these companies.",
+   "section": "CGST \u00a716(2), \u00a750",
+   "id": "alert_1",
+   "status": "OPEN"
+  },
+  {
+   "rule": "CIRCULAR_TRADING",
+   "severity": "CRITICAL",
+   "title": "3-company circular trading ring",
+   "entity": "BHAIRAV METALS",
+   "entities": [
+    {
+     "gstin": "29AABCB2222B1ZE",
+     "name": "BHAIRAV METALS"
+    },
+    {
+     "gstin": "29AABCC3333C1Z5",
+     "name": "CHAKOR ALLOYS"
+    },
+    {
+     "gstin": "29AABCA1111A1ZN",
+     "name": "AGNI TRADERS PVT LTD"
+    }
+   ],
+   "impact": 50310.0,
+   "impact_label": "GST routed through ring",
+   "invoice_ids": [
+    "inv_demo02",
+    "inv_demo03",
+    "inv_demo01"
+   ],
+   "path": [
+    {
+     "gstin": "29AABCB2222B1ZE",
+     "name": "BHAIRAV METALS"
+    },
+    {
+     "gstin": "29AABCC3333C1Z5",
+     "name": "CHAKOR ALLOYS"
+    },
+    {
+     "gstin": "29AABCA1111A1ZN",
+     "name": "AGNI TRADERS PVT LTD"
+    },
+    {
+     "gstin": "29AABCB2222B1ZE",
+     "name": "BHAIRAV METALS"
+    }
+   ],
+   "why": "3 companies invoice each other in a closed loop (\u20b9329,810 circulated). Circular invoicing without goods movement is the classic fake-ITC pattern (CGST \u00a7132).",
+   "section": "CGST \u00a7132(1)(b)/(c)",
+   "id": "alert_2",
+   "status": "DRAFTED",
+   "drafts": [
+    {
+     "type": "client_advisory",
+     "label": "Client advisory",
+     "text": "We are writing to advise you regarding a significant compliance finding identified during our audit review concerning circular trading patterns among associated entities.\n\nWhat We Found\nOur analysis detected a 3-company circular trading ring involving BHAIRAV METALS (29AABCB2222B1ZE), CHAKOR ALLOYS (29AABCC3333C1Z5), and AGNI TRADERS PVT LTD (29AABCA1111A1ZN). The evidence path shows that these three companies invoice each other in a closed loop: BHAIRAV METALS \u2192 CHAKOR ALLOYS \u2192 AGNI TRADERS PVT LTD \u2192 BHAIRAV METALS. This pattern involves the circulation of \u20b9329,810 through invoicing without corresponding movement of goods.\n\nRisk Assessment and Legal Exposure\nThis activity constitutes a classic fake-ITC pattern under GST law. The core risk is that input tax credit (ITC) has been routed purely through this circular mechanism rather than genuine trade. Consequently, the estimated exposure for Input Tax Credit at risk is INR 50,310.00. This liability falls under CGST \u00a7132(1)(b)/(c).\n\nIf your company\u2019s books are clean and you were merely exposed to this ring activity through your suppliers, we advise that your internal records should be robustly protected. However, the involvement of these three entities requires immediate action.\n\nImmediate Steps Required\nYou must take the following steps immediately:\n\n1. Cease all invoicing and transactions with BHAIRAV METALS (29AABCB2222B1ZE), CHAKOR ALLOYS (29AABCC3333C1Z5), and AGNI TRADERS PVT LTD (29AABCA1111A1ZN) until this matter is resolved.\n2. Conduct an immediate internal review of all invoices received from these three entities to confirm that every transaction corresponds directly with verifiable goods movement or services rendered.\n3. Prepare a detailed reconciliation showing the full flow of funds and ITC related to the \u20b9329,810 circulated amount, clearly demonstrating where physical goods moved.\n4. Consult with specialized legal counsel immediately to determine the appropriate response strategy regarding the potential liability under CGST \u00a7132(1)(b)/(c).",
+     "model": "gemma (local)",
+     "seconds": 22.8,
+     "status": "DRAFT"
+    },
+    {
+     "type": "payment_hold",
+     "label": "Payment hold recommendation",
+     "text": "INTERNAL MEMORANDUM TO TREASURY DEPARTMENT\n\nSubject: Immediate Payment Hold Recommendation \u2013 Circular Trading Ring involving BHAIRAV METALS, CHAKOR ALLOYS, and AGNI TRADERS PVT LTD\n\nPlease place an immediate hold on all outgoing payments related to the following entities due to a high-risk finding of circular trading activity.\n\nEntities Flagged:\n1. BHAIRAV METALS (29AABCB2222B1ZE)\n2. CHAKOR ALLOYS (29AABCC3333C1Z5)\n3. AGNI TRADERS PVT LTD (29AABCA1111A1ZN)\n\nObservation:\nThe audit desk has identified a 3-company circular trading ring involving these three entities. The evidence path confirms the flow: BHAIRAV METALS \u2192 CHAKOR ALLOYS \u2192 AGNI TRADERS PVT LTD \u2192 BHAIRAV METALS. This pattern constitutes circular invoicing without corresponding goods movement, which is flagged as a classic fake-ITC pattern under CGST \u00a7132(1)(b)/(c).\n\nExposure:\nThe total exposure identified through this ring is INR 50,310.00 (GST routed through the ring), based on a circulated value of \u20b9329,810.\n\nAction Required:\nAll payments to BHAIRAV METALS, CHAKOR ALLOYS, and AGNI TRADERS PVT LTD must be immediately suspended pending further review.\n\nConditions for Release of Hold:\nPayments may only be released upon satisfactory verification that the circular nature of the transactions has ceased AND documentary proof is provided confirming physical movement of goods corresponding to all invoiced amounts within this ring.",
+     "model": "gemma (local)",
+     "seconds": 17.1,
+     "status": "DRAFT"
+    },
+    {
+     "type": "file_note",
+     "label": "Audit file note",
+     "text": "Internal Audit File Note: Circular Trading Ring Analysis\n\nObservation: 3-company circular trading ring identified involving BHAIRAV METALS (29AABCB2222B1ZE), CHAKOR ALLOYS (29AABCC3333C1Z5), and AGNI TRADERS PVT LTD (29AABCA1111A1ZN).\n\nRule Triggered: CIRCULAR_TRADING. This analysis utilized deterministic graph/ledger analysis, confirming a closed-loop invoicing pattern.\n\nLegal Basis: The finding is based on the provisions of CGST \u00a7132(1)(b)/(c), and this note serves as internal legal cover under CGST \u00a7132(1)(l).\n\nEvidence Summary: The evidence path confirms circular invoicing among the three entities: BHAIRAV METALS \u2192 CHAKOR ALLOYS \u2192 AGNI TRADERS PVT LTD \u2192 BHAIRAV METALS. A total of \u20b9329,810 was circulated through this closed loop. This pattern constitutes a classic fake-ITC mechanism due to the absence of corresponding goods movement.\n\nExposure Computed: The calculated GST exposure attributable to this ring is INR 50,310.00.\n\nAction Taken: Documentation confirms that the circular invoicing without physical goods movement has been flagged as non-compliant with CGST \u00a7132 provisions. This file note records the deterministic trigger and computed exposure for necessary compliance action.",
+     "model": "gemma (local)",
+     "seconds": 16.9,
+     "status": "DRAFT"
+    }
+   ]
+  },
+  {
+   "rule": "RING_EXPOSURE",
+   "severity": "HIGH",
+   "title": "Clean company 1 hop from a fraud ring",
+   "entity": "DEEPAK CHEMICALS",
+   "entities": [
+    {
+     "gstin": "29AABCD4444D1ZW",
+     "name": "DEEPAK CHEMICALS"
+    }
+   ],
+   "impact": 44604.0,
+   "impact_label": "ITC reversal + 18% interest at risk",
+   "invoice_ids": [
+    "inv_demo04"
+   ],
+   "path": [
+    {
+     "gstin": "29AABCA1111A1ZN",
+     "name": "AGNI TRADERS PVT LTD"
+    },
+    {
+     "gstin": "29AABCD4444D1ZW",
+     "name": "DEEPAK CHEMICALS"
+    }
+   ],
+   "why": "DEEPAK CHEMICALS has clean books \u2014 but its supplier AGNI TRADERS PVT LTD is inside a circular trading ring. Under CGST \u00a716(2) the input tax credit on those purchases (\u20b937,800) can be denied, plus 18% interest. They have never met these companies.",
+   "section": "CGST \u00a716(2), \u00a750",
+   "id": "alert_3",
+   "status": "OPEN"
+  },
+  {
+   "rule": "DUPLICATE_INVOICE",
+   "severity": "HIGH",
+   "title": "Invoice LMW/2026-27/0412 submitted 2\u00d7",
+   "entity": "LAKSHMI METAL WORKS",
+   "entities": [
+    {
+     "gstin": "29AABCL8888L1ZJ",
+     "name": "LAKSHMI METAL WORKS"
+    }
+   ],
+   "impact": 15840.0,
+   "impact_label": "double-claimed ITC",
+   "invoice_ids": [
+    "inv_demo07",
+    "inv_demo08"
+   ],
+   "path": [],
+   "why": "The same seller GSTIN + invoice number appears 2 times (\u20b9103,840 each). ITC can be claimed only once per document.",
+   "section": "CGST \u00a716",
+   "id": "alert_4",
+   "status": "OPEN"
+  }
+ ],
  "graph": {
-  "nodes": [],
-  "edges": [],
-  "rings": 0
+  "nodes": [
+   {
+    "id": "29AABCA1111A1ZN",
+    "name": "AGNI TRADERS PVT LTD",
+    "horizon": false,
+    "role": "ring"
+   },
+   {
+    "id": "29AABCB2222B1ZE",
+    "name": "BHAIRAV METALS",
+    "horizon": false,
+    "role": "ring"
+   },
+   {
+    "id": "29AABCC3333C1Z5",
+    "name": "CHAKOR ALLOYS",
+    "horizon": false,
+    "role": "ring"
+   },
+   {
+    "id": "29AABCD4444D1ZW",
+    "name": "DEEPAK CHEMICALS",
+    "horizon": false,
+    "role": "hop1"
+   },
+   {
+    "id": "29AABCS5555S1ZG",
+    "name": "SHARMA TRADERS",
+    "horizon": false,
+    "role": "hop2"
+   },
+   {
+    "id": "29AABCK6666K1ZY",
+    "name": "KAVERI STEEL TRADERS",
+    "horizon": true,
+    "role": "clean"
+   },
+   {
+    "id": "29AABCF7777F1Z8",
+    "name": "ANAND FABRICATORS",
+    "horizon": false,
+    "role": "clean"
+   },
+   {
+    "id": "29AABCL8888L1ZJ",
+    "name": "LAKSHMI METAL WORKS",
+    "horizon": true,
+    "role": "clean"
+   },
+   {
+    "id": "29AABCP9999P1Z1",
+    "name": "KARNATAKA PRECISION TOOLS",
+    "horizon": false,
+    "role": "clean"
+   }
+  ],
+  "edges": [
+   {
+    "source": "29AABCA1111A1ZN",
+    "target": "29AABCB2222B1ZE",
+    "amount": 112100.0,
+    "gst": 17100.0,
+    "count": 1,
+    "in_ring": true
+   },
+   {
+    "source": "29AABCB2222B1ZE",
+    "target": "29AABCC3333C1Z5",
+    "amount": 107380.0,
+    "gst": 16380.0,
+    "count": 1,
+    "in_ring": true
+   },
+   {
+    "source": "29AABCC3333C1Z5",
+    "target": "29AABCA1111A1ZN",
+    "amount": 110330.0,
+    "gst": 16830.0,
+    "count": 1,
+    "in_ring": true
+   },
+   {
+    "source": "29AABCA1111A1ZN",
+    "target": "29AABCD4444D1ZW",
+    "amount": 247800.0,
+    "gst": 37800.0,
+    "count": 1,
+    "in_ring": false
+   },
+   {
+    "source": "29AABCD4444D1ZW",
+    "target": "29AABCS5555S1ZG",
+    "amount": 389400.0,
+    "gst": 59400.0,
+    "count": 1,
+    "in_ring": false
+   },
+   {
+    "source": "29AABCK6666K1ZY",
+    "target": "29AABCF7777F1Z8",
+    "amount": 171100.0,
+    "gst": 26100.0,
+    "count": 1,
+    "in_ring": false
+   },
+   {
+    "source": "29AABCL8888L1ZJ",
+    "target": "29AABCP9999P1Z1",
+    "amount": 207680.0,
+    "gst": 31680.0,
+    "count": 2,
+    "in_ring": false
+   },
+   {
+    "source": "29AABCK6666K1ZY",
+    "target": "29AABCS5555S1ZG",
+    "amount": 89680.0,
+    "gst": 13680.0,
+    "count": 1,
+    "in_ring": false
+   }
+  ],
+  "rings": 1
  },
  "stopwatch_seconds": 0.0
 }

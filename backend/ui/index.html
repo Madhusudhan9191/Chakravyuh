@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CHAKRA — what should the accountant do next?</title>
+<title>🛞CHAKRA — what should the accountant do next?</title>
 <style>
 :root{
   --bg:#0a0e13; --panel:#111820; --panel2:#171f29; --line:#233040;
@@ -97,7 +97,7 @@ button:disabled{opacity:.45;cursor:wait}
 @keyframes march{to{stroke-dashoffset:-12}}
 @keyframes pulse{0%,100%{r:26}50%{r:31}}
 .elabel{fill:var(--faint);font-size:10px;font-family:var(--mono)}
-#simpanel{position:absolute;top:16px;right:16px;width:270px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;display:none}
+#simpanel{position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;display:none;box-shadow:0 8px 30px #0008}
 #simpanel h4{font-size:13px;margin-bottom:8px}
 #simpanel .num{font-family:var(--mono);font-weight:700}
 /* playback */
@@ -120,13 +120,12 @@ button:disabled{opacity:.45;cursor:wait}
 <div id="side">
   <div id="logo"><h1>CHAKRA</h1><p>what should the accountant do next?</p></div>
   <nav>
-    <a data-v="today" class="active">☀️ Monday morning</a>
+    <a data-v="today" class="active"> Home </a>
     <a data-v="graph">🕸 Network</a>
     <a data-v="timeline">⏪ Time machine</a>
   </nav>
   <div class="tools">
     <button class="small" onclick="loadDemo('instant')">Demo ⚡</button>
-    <button class="small" onclick="loadDemo('live')">Demo live</button>
     <button class="small danger" onclick="resetAll()">Reset</button>
   </div>
   <div id="gemma-pill"><span class="dot off" id="gdot"></span><b id="gmodel">connecting…</b><span id="glat"></span></div>
@@ -135,7 +134,7 @@ button:disabled{opacity:.45;cursor:wait}
 <div id="main">
   <!-- TODAY -->
   <section id="v-today">
-    <h2 class="viewtitle" id="today-title">Monday morning</h2>
+    <h2 class="viewtitle" id="today-title">Welcome to CHAKRA</h2>
     <p class="sub" id="today-sub">Drop the paper chaos below. Gemma reads it, the math verifies it, the letters get written.</p>
     <div id="heroes">
       <div class="hero gold"><div class="big" id="h-time">0 h</div><div class="lbl">of CA work replaced <span id="h-stopwatch"></span></div></div>
@@ -207,7 +206,7 @@ function render(){
   $('#h-money').textContent=inr(st.rupees_protected||0);
   $('#h-silent').textContent='0';
   const open=STATE.alerts.filter(a=>a.status!=='DISMISSED');
-  $('#today-title').textContent=open.length?`Monday morning — ${open.length} thing${open.length>1?'s':''} need${open.length>1?'':'s'} you`:'Monday morning';
+  $('#today-title').textContent=open.length?`Pick up where you left off — ${open.length} thing${open.length>1?'s':''} need${open.length>1?'':'s'} your attention`:'Welcome to CHAKRA';
   $('#alert-list').innerHTML=open.map(a=>`
     <div class="alert-row" onclick="openAlert('${a.id}')">
       <span class="sev ${a.severity}">${a.severity}</span>
@@ -338,10 +337,56 @@ function drawGraph(){
       <text x="${x}" y="${y+5}" style="font-size:15px">${n.role==='ring'?'🔥':n.role==='hop1'?'⚠️':n.role==='hop2'?'⚡':'✅'}</text></g>`});
   svg.innerHTML=s;
 }
+const ROLE_STORY={
+  ring:['🔥 Inside a circular trading ring',
+    'This company invoices in a closed loop — A bills B bills C bills A. Real trade never travels in circles; fake input-tax-credit does. No goods move, and the GST shown on these invoices was likely never deposited with the government. This is the classic fake-ITC machine (CGST §132).'],
+  hop1:['⚠️ One hop from the ring',
+    'This company buys directly from a ring member. GST credit is a chain of trust — every credit assumes the tax was actually paid upstream. Here, it likely wasn’t. Under CGST §16(2) the credit on these purchases can be denied, even though this buyer may be entirely honest.'],
+  hop2:['⚡ Two hops — the blast radius',
+    'This company’s own books are clean and it has never met the ring. But its supplier bought from the ring — so when the department unwinds the chain, this company’s tax credit gets reversed too: the same tax paid twice, plus 18% interest (§50). The risk isn’t wrongdoing. It’s standing in the blast radius.'],
+  clean:['✅ Clean — and provably so',
+    'No path connects this company to any detected ring in the evidence we hold. That’s not a guess: it’s the absence of a route in the invoice graph. Half the value of this map is peace of mind.']
+};
+const HORIZON_STORY=['◌ Visibility Horizon',
+  'We hold no purchase-side invoices for this company — so we cannot see who supplies THEM. Rather than guess, CHAKRA marks the edge of its evidence. Their own CA’s CHAKRA could answer a yes/no risk question about them without sharing any data — that’s the federation roadmap.'];
 function graphSim(gstin,name){
-  $('#simpanel').style.display='block';
-  const p=$('#simpanel');p.innerHTML=`<h4>🔮 Simulate: remove ${name}?</h4><button class="primary small" onclick="simPanelRun('${gstin}','${name.replace(/'/g,"\\'")}')">Run counterfactual</button> <button class="small" onclick="this.parentElement.style.display='none'">✕</button>`;
+  const p=$('#simpanel');p.style.display='block';
+  const g=STATE.graph;
+  const node=g.nodes.find(n=>n.id===gstin)||{};
+  const nameOf=id=>(g.nodes.find(n=>n.id===id)||{}).name||id;
+  const [title,story]=ROLE_STORY[node.role]||ROLE_STORY.clean;
+  const alert=STATE.alerts.find(a=>(a.entities||[]).some(e=>e.gstin===gstin)&&a.status!=='DISMISSED');
+  const sells=g.edges.filter(e=>e.source===gstin);
+  const buys=g.edges.filter(e=>e.target===gstin);
+  const li=(arr,dir)=>arr.map(e=>`<div style="font-size:12px;font-family:var(--mono)">${dir==='out'?'→ bills':'← billed by'} <b>${nameOf(dir==='out'?e.target:e.source)}</b> ${inr(e.amount)}${e.in_ring?' <span style="color:var(--red)">⭮ ring leg</span>':''}</div>`).join('');
+  let special='';
+  if(node.role==='ring'){
+    const partners=g.nodes.filter(n=>n.role==='ring'&&n.id!==gstin).map(n=>n.name);
+    const victims=STATE.alerts.filter(a=>a.rule==='RING_EXPOSURE'&&a.status!=='DISMISSED')
+      .map(a=>`<div style="font-size:12px">💥 <b>${a.entity}</b> — ${inr(a.impact)} at risk (${a.severity==='CRITICAL'?'2 hops, never met them':'buys directly'})</div>`).join('');
+    special=`<p style="font-size:11px;letter-spacing:1px;color:var(--red);margin-top:10px">THE FRAUD — ring partners</p>
+      <div style="font-size:12px">${name} ⭮ ${partners.join(' ⭮ ')}</div>
+      <p style="font-size:11px;letter-spacing:1px;color:var(--amber);margin-top:8px">WHO GETS HURT — honest businesses downstream</p>
+      ${victims||'<div class="muted" style="font-size:12px">none in current data</div>'}`;
+  }else if((node.role==='hop1'||node.role==='hop2')&&alert&&alert.path.length){
+    special=`<p style="font-size:11px;letter-spacing:1px;color:var(--amber);margin-top:10px">HOW THE RISK REACHES THEM — victim, not fraudster</p>
+      <div style="font-size:12px;font-family:var(--mono)">${alert.path.map((x,i)=>i===alert.path.length-1?`<b style="color:var(--amber)">${x.name}</b>`:`<span style="color:${i<alert.path.length-2?'var(--red)':'var(--orange)'}">${x.name}</span>`).join(' → ')}</div>`;
+  }
+  p.innerHTML=`<h4>${name}</h4>
+    <p style="font-size:12px;color:var(--gold);margin-bottom:6px">${title}</p>
+    <p style="font-size:12px;color:var(--dim)">${story}</p>
+    ${special}
+    <p style="font-size:11px;letter-spacing:1px;color:var(--dim);margin-top:10px">THIS COMPANY'S MONEY TRAIL</p>
+    ${li(buys,'in')}${li(sells,'out')||''}
+    ${node.horizon?`<p style="font-size:12px;color:var(--amber);margin-top:8px"><b>${HORIZON_STORY[0]}</b> — ${HORIZON_STORY[1]}</p>`:''}
+    ${alert?`<p style="margin-top:8px;font-family:var(--mono);font-weight:700;color:var(--gold)">${inr(alert.impact)} at risk</p>
+      <button class="small" style="margin-top:6px" onclick="closeSim();openAlert('${alert.id}')">Open the finding →</button>`:''}
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="primary small" onclick="simPanelRun('${gstin}','${name.replace(/'/g,"\\'")}')">🔮 What if we drop them?</button>
+      <button class="small" onclick="closeSim()">✕</button>
+    </div>`;
 }
+function closeSim(){$('#simpanel').style.display='none'}
 async function simPanelRun(gstin,name){
   const p=$('#simpanel');p.innerHTML='<span class="spin"></span> re-running the math…';
   try{const r=await api('/simulate/'+encodeURIComponent(gstin),{method:'POST'});
