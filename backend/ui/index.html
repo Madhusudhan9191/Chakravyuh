@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHAKRA — what should the accountant do next?</title>
+<style>
+:root{
+  --bg:#0a0e13; --panel:#111820; --panel2:#171f29; --line:#233040;
+  --text:#e8edf3; --dim:#8fa0b3; --faint:#5a6b7e;
+  --gold:#f5b83d; --red:#ef4444; --orange:#f97316; --amber:#f59e0b;
+  --green:#22c55e; --blue:#38bdf8;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;overflow:hidden}
+/* ── sidebar ── */
+#side{width:220px;min-width:220px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 0}
+#logo{padding:0 22px 18px;border-bottom:1px solid var(--line)}
+#logo h1{font-size:22px;letter-spacing:4px;color:var(--gold)}
+#logo p{font-size:11px;color:var(--faint);margin-top:2px}
+nav{margin-top:14px}
+nav a{display:flex;gap:10px;align-items:center;padding:11px 22px;color:var(--dim);cursor:pointer;font-size:14px;border-left:3px solid transparent}
+nav a.active{color:var(--text);background:var(--panel2);border-left-color:var(--gold)}
+nav a:hover{color:var(--text)}
+#gemma-pill{margin:auto 18px 0;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--dim)}
+#gemma-pill b{display:block;font-size:12px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot.off{background:var(--red)}
+#side .tools{padding:12px 18px 0;display:flex;gap:8px}
+/* ── main ── */
+#main{flex:1;overflow-y:auto;padding:26px 34px}
+h2.viewtitle{font-size:20px;margin-bottom:4px}
+.sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+/* hero numbers */
+#heroes{display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.hero{flex:1;min-width:200px;background:linear-gradient(160deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.hero .big{font-size:32px;font-weight:700;font-family:var(--mono)}
+.hero .lbl{font-size:12px;color:var(--dim);margin-top:2px}
+.hero.gold .big{color:var(--gold)} .hero.red .big{color:var(--red)} .hero.green .big{color:var(--green)}
+/* upload */
+#drop{border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--dim);margin-bottom:20px;cursor:pointer;transition:.2s}
+#drop.hot{border-color:var(--gold);color:var(--gold);background:#f5b83d0d}
+#upl-status{font-family:var(--mono);font-size:12px;margin-top:8px;color:var(--blue)}
+#upl-rows{margin-top:6px;font-size:12px;color:var(--faint);max-height:110px;overflow-y:auto;text-align:left}
+/* alert list */
+.alert-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px;cursor:pointer;transition:.15s}
+.alert-row:hover{border-color:var(--gold);transform:translateX(3px)}
+.sev{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:1px;white-space:nowrap}
+.sev.CRITICAL{background:#ef444422;color:var(--red);border:1px solid #ef444455}
+.sev.HIGH{background:#f9731622;color:var(--orange);border:1px solid #f9731655}
+.sev.MEDIUM{background:#f59e0b22;color:var(--amber);border:1px solid #f59e0b55}
+.alert-row .who{font-weight:600;min-width:170px}
+.alert-row .what{color:var(--dim);font-size:13px;flex:1}
+.alert-row .amt{font-family:var(--mono);font-weight:700;color:var(--gold);white-space:nowrap}
+.alert-row .st{font-size:11px;color:var(--faint);white-space:nowrap}
+.alert-row .st.APPROVED{color:var(--green)} .alert-row .st.DRAFTED{color:var(--blue)}
+.clean-note{color:var(--green);font-size:13px;margin-top:14px}
+/* buttons */
+button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer}
+button:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:#111;border:none;font-weight:700}
+button.danger{color:var(--red);border-color:#ef444455}
+button.small{padding:4px 10px;font-size:12px}
+button:disabled{opacity:.45;cursor:wait}
+/* modal / drawer */
+#overlay{position:fixed;inset:0;background:#000a;display:none;z-index:40}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:min(760px,94vw);background:var(--panel);border-left:1px solid var(--line);z-index:50;display:none;flex-direction:column}
+#drawer.open,#overlay.open{display:flex}
+#drawer header{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+#drawer header h3{font-size:17px;flex:1}
+#drawer .body{flex:1;overflow-y:auto;padding:22px 26px}
+.card-sec{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.card-sec h4{font-size:12px;letter-spacing:2px;color:var(--dim);margin-bottom:9px}
+.card-sec h4 .tag{float:right;font-size:10px;padding:2px 8px;border-radius:12px;letter-spacing:1px}
+.tag.det{background:#38bdf822;color:var(--blue)} .tag.ai{background:#f5b83d22;color:var(--gold)}
+.exposure-big{font-family:var(--mono);font-size:30px;font-weight:800;color:var(--gold)}
+.receipt{font-family:var(--mono);font-size:12px;padding:6px 10px;border-left:3px solid var(--blue);background:#38bdf80d;margin-bottom:6px;border-radius:0 6px 6px 0;color:#bcd3e6}
+.receipt.review{border-left-color:var(--amber);background:#f59e0b0d;color:#e6d3a9}
+.draft-box{width:100%;min-height:150px;background:#0d1319;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;font:13px/1.5 var(--mono);resize:vertical}
+.draft-head{display:flex;align-items:center;gap:10px;margin:14px 0 6px}
+.draft-head b{flex:1}
+.evimg{max-width:170px;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;margin:4px}
+.pathline{font-size:13px;color:var(--dim);font-family:var(--mono);margin-top:6px}
+.pathline b{color:var(--red)}
+/* graph */
+#gwrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;position:relative}
+#graph{width:100%;height:calc(100vh - 210px)}
+.gnode{cursor:pointer}
+.gnode circle{stroke-width:2}
+.gnode text{fill:var(--text);font-size:12px;text-anchor:middle}
+.gnode .gst{fill:var(--faint);font-size:9px;font-family:var(--mono)}
+.gedge{stroke:#3a4a5d;stroke-width:1.4;fill:none;marker-end:url(#arr)}
+.gedge.ring{stroke:var(--red);stroke-width:2.6;stroke-dasharray:7 5;animation:march 1s linear infinite}
+.gedge.hot{stroke:var(--gold);stroke-width:3.5;stroke-dasharray:none}
+@keyframes march{to{stroke-dashoffset:-12}}
+@keyframes pulse{0%,100%{r:26}50%{r:31}}
+.elabel{fill:var(--faint);font-size:10px;font-family:var(--mono)}
+#simpanel{position:absolute;top:16px;right:16px;width:270px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;display:none}
+#simpanel h4{font-size:13px;margin-bottom:8px}
+#simpanel .num{font-family:var(--mono);font-weight:700}
+/* playback */
+.pb-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);opacity:.25;transition:.4s}
+.pb-step.on{opacity:1}
+.pb-step .n{width:26px;height:26px;border-radius:50%;background:var(--panel);border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.pb-step .t b{display:block;font-size:13px}
+.pb-step .t span{font-size:12px;color:var(--dim);font-family:var(--mono)}
+/* timeline */
+#tl-slider{width:100%}
+.tl-info{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:12px}
+.newfind{color:var(--red);font-size:13px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.muted{color:var(--faint);font-size:13px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);border-radius:10px;padding:10px 20px;display:none;z-index:99;font-size:13px}
+</style>
+</head>
+<body>
+<div id="side">
+  <div id="logo"><h1>CHAKRA</h1><p>what should the accountant do next?</p></div>
+  <nav>
+    <a data-v="today" class="active">☀️ Monday morning</a>
+    <a data-v="graph">🕸 Network</a>
+    <a data-v="timeline">⏪ Time machine</a>
+  </nav>
+  <div class="tools">
+    <button class="small" onclick="loadDemo('instant')">Demo ⚡</button>
+    <button class="small" onclick="loadDemo('live')">Demo live</button>
+    <button class="small danger" onclick="resetAll()">Reset</button>
+  </div>
+  <div id="gemma-pill"><span class="dot off" id="gdot"></span><b id="gmodel">connecting…</b><span id="glat"></span></div>
+</div>
+
+<div id="main">
+  <!-- TODAY -->
+  <section id="v-today">
+    <h2 class="viewtitle" id="today-title">Monday morning</h2>
+    <p class="sub" id="today-sub">Drop the paper chaos below. Gemma reads it, the math verifies it, the letters get written.</p>
+    <div id="heroes">
+      <div class="hero gold"><div class="big" id="h-time">0 h</div><div class="lbl">of CA work replaced <span id="h-stopwatch"></span></div></div>
+      <div class="hero red"><div class="big" id="h-money">₹0</div><div class="lbl">exposure caught before it cost money</div></div>
+      <div class="hero green"><div class="big" id="h-silent">0</div><div class="lbl">wrong values silently accepted — ever</div></div>
+    </div>
+    <div id="drop">📄 Drop invoice photos / PDFs here — or click to choose<br>
+      <span class="muted">processed 3 at a time on local Gemma · nothing leaves this machine</span>
+      <div id="upl-status"></div><div id="upl-rows"></div>
+    </div>
+    <input type="file" id="fpick" multiple accept="image/*,.pdf" style="display:none">
+    <div id="alert-list"></div>
+    <p class="clean-note" id="clean-note"></p>
+  </section>
+
+  <!-- GRAPH -->
+  <section id="v-graph" style="display:none">
+    <h2 class="viewtitle">The vendor network</h2>
+    <p class="sub">Evidence, not interface. Red ring = circular trading. Dashed outline = <b>Visibility Horizon</b> — we hold no purchase-side data for that company and say so. Click any company to simulate removing it — <i>possible only because the decision layer is pure math.</i></p>
+    <div id="gwrap"><svg id="graph" viewBox="0 0 960 560"></svg>
+      <div id="simpanel"></div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="v-timeline" style="display:none">
+    <h2 class="viewtitle">Compliance time machine</h2>
+    <p class="sub">Replay the network invoice-by-invoice. When did the risk actually begin?</p>
+    <input type="range" id="tl-slider" min="0" max="0" value="0" oninput="tlShow(+this.value)">
+    <div class="tl-info" id="tl-info"><span class="muted">Load documents first, then drag the slider.</span></div>
+  </section>
+</div>
+
+<!-- ALERT DRAWER -->
+<div id="overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <header><h3 id="d-title"></h3><button class="small" onclick="startPlayback()">▶ Evidence playback</button><button class="small" onclick="closeDrawer()">✕</button></header>
+  <div class="body" id="d-body"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const $=q=>document.querySelector(q);
+const api=(p,opt)=>fetch('/api'+p,opt).then(r=>{if(!r.ok)return r.json().then(e=>{throw new Error(e.detail||r.status)});return r.json()});
+const inr=n=>'₹'+(n>=100000?(n/100000).toFixed(1).replace(/\.0$/,'')+'L':Math.round(n).toLocaleString('en-IN'));
+let STATE={stats:{},alerts:[],graph:{nodes:[],edges:[]},invoices:[]}, CUR=null, TL=null;
+
+/* ── nav ── */
+document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>{
+  document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
+  ['today','graph','timeline'].forEach(v=>$('#v-'+v).style.display=(a.dataset.v===v?'':'none'));
+  if(a.dataset.v==='graph')drawGraph();
+  if(a.dataset.v==='timeline')loadTimeline();
+});
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3200)}
+
+/* ── status + state ── */
+async function pollStatus(){try{const s=await api('/status');
+  $('#gdot').className='dot '+(s.gemma_connected?'on':'off');
+  $('#gmodel').textContent=s.gemma_connected?s.model:'Gemma offline';
+  $('#glat').textContent=s.gemma_connected?`local · ${s.latency_ms} ms`:'start LM Studio server';
+}catch(e){$('#gdot').className='dot off';$('#gmodel').textContent='backend offline'}}
+async function refresh(){STATE=await api('/state');render()}
+function render(){
+  const st=STATE.stats;
+  $('#h-time').textContent=(st.hours_saved||0)+' h';
+  $('#h-stopwatch').textContent=st.stopwatch_seconds?`· stopwatch: ${st.stopwatch_seconds}s of Gemma time`:'';
+  $('#h-money').textContent=inr(st.rupees_protected||0);
+  $('#h-silent').textContent='0';
+  const open=STATE.alerts.filter(a=>a.status!=='DISMISSED');
+  $('#today-title').textContent=open.length?`Monday morning — ${open.length} thing${open.length>1?'s':''} need${open.length>1?'':'s'} you`:'Monday morning';
+  $('#alert-list').innerHTML=open.map(a=>`
+    <div class="alert-row" onclick="openAlert('${a.id}')">
+      <span class="sev ${a.severity}">${a.severity}</span>
+      <span class="who">${a.entity}</span>
+      <span class="what">${a.title}</span>
+      <span class="amt">${inr(a.impact)}</span>
+      <span class="st ${a.status}">${a.status==='OPEN'?'[Review →]':a.status}</span>
+    </div>`).join('');
+  const clean=st.clean_parties||0;
+  $('#clean-note').textContent=STATE.invoices.length?`✅ ${clean} part${clean===1?'y is':'ies are'} clean. ${STATE.invoices.length} documents verified — zero silent errors.`:'';
+}
+
+/* ── upload with concurrency 3 ── */
+const drop=$('#drop'),fpick=$('#fpick');
+drop.onclick=()=>fpick.click();
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('hot')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('hot')}));
+drop.addEventListener('drop',ev=>ingest([...ev.dataTransfer.files]));
+fpick.onchange=()=>ingest([...fpick.files]);
+async function ingest(files){
+  if(!files.length)return;
+  const t0=Date.now();let done=0,fail=0;const rows=$('#upl-rows');rows.innerHTML='';
+  const tick=setInterval(()=>{$('#upl-status').innerHTML=`<span class="spin"></span> ${done+fail}/${files.length} · stopwatch ${((Date.now()-t0)/1000).toFixed(1)}s`},200);
+  const queue=[...files];
+  async function worker(){
+    while(queue.length){
+      const f=queue.shift();
+      const row=document.createElement('div');row.textContent='… '+f.name;rows.prepend(row);
+      const fd=new FormData();fd.append('file',f);
+      try{const r=await fetch('/api/upload',{method:'POST',body:fd});
+        if(!r.ok)throw new Error((await r.json()).detail||r.status);
+        const j=await r.json();done++;
+        const rep=j.receipts.filter(x=>x.kind==='repair').length;
+        row.textContent=`✅ ${f.name} — ${j.seconds}s${rep?` · ${rep} repair${rep>1?'s':''} by trust layer`:''}${j.review.length?` · 👁 review: ${j.review.join(', ')}`:''}`;
+      }catch(e){fail++;row.textContent=`🚨 ${f.name} — ${e.message}`}
+    }
+  }
+  await Promise.all([worker(),worker(),worker()]);
+  clearInterval(tick);
+  $('#upl-status').textContent=`Done: ${done} ok, ${fail} failed · ${((Date.now()-t0)/1000).toFixed(1)}s total`;
+  await api('/evaluate',{method:'POST'});await refresh();
+}
+
+/* ── demo / reset ── */
+async function loadDemo(mode){
+  toast(mode==='live'?'Running demo photos through live Gemma…':'Loading pre-verified demo…');
+  try{await api('/demo/'+mode,{method:'POST'});if(mode==='instant'){await api('/evaluate',{method:'POST'})}await refresh();toast('Demo ready.')}
+  catch(e){toast('Demo: '+e.message)}
+}
+async function resetAll(){await api('/reset',{method:'POST'});await refresh();$('#upl-rows').innerHTML='';$('#upl-status').textContent='';toast('Cleared.')}
+
+/* ── alert drawer ── */
+function openAlert(id){
+  CUR=STATE.alerts.find(a=>a.id===id);if(!CUR)return;
+  $('#d-title').textContent=`${CUR.entity} — ${inr(CUR.impact)}`;
+  const evInvs=STATE.invoices.filter(i=>CUR.invoice_ids.includes(i.id));
+  const receipts=evInvs.flatMap(i=>i.receipts||[]);
+  $('#d-body').innerHTML=`
+    <div class="card-sec"><h4>❓ WHY IS IT RISKY <span class="tag det">⚙️ GRAPH</span></h4>
+      <p>${CUR.why}</p>
+      ${CUR.path.length?`<p class="pathline">${CUR.path.map(p=>`<b>${p.name}</b>`).join(' → ')} &nbsp;<button class="small" onclick="showPath()">Why am I connected? →</button></p>`:''}
+    </div>
+    <div class="card-sec"><h4>📎 EVIDENCE <span class="tag det">⚙️ TRUST LAYER</span></h4>
+      <div>${evInvs.map(i=>`<img class="evimg" src="/api/invoice/${i.id}/image" onclick="window.open(this.src)" title="${i.file}">`).join('')||'<span class="muted">ledger-level evidence (no images)</span>'}</div>
+      <div style="margin-top:10px">${receipts.map(r=>`<div class="receipt ${r.kind==='review'?'review':''}">${r.kind==='review'?'👁':'⚙️'} ${r.msg}</div>`).join('')||'<span class="muted">extraction verified clean — no repairs needed</span>'}</div>
+    </div>
+    <div class="card-sec"><h4>💰 EXPOSURE <span class="tag det">⚙️ IMPACT</span></h4>
+      <div class="exposure-big">${inr(CUR.impact)}</div>
+      <p class="muted">${CUR.impact_label} · ${CUR.section}</p>
+      ${CUR.entities.length?`<p style="margin-top:8px"><button class="small" onclick="simulate('${CUR.entities[0].gstin}','${CUR.entities[0].name}')">🔮 What if I drop this supplier today?</button></p>`:''}
+      <div id="sim-inline"></div>
+    </div>
+    <div class="card-sec"><h4>✅ WHAT SHOULD I DO <span class="tag ai">🤖 GEMMA</span></h4>
+      <div id="drafts-area">${CUR.drafts?draftHtml(CUR.drafts):`<button class="primary" id="gen-btn" onclick="genDrafts()">Draft the paperwork with Gemma →</button> <span class="muted">writes the letters from the deterministic evidence above</span>`}</div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="primary" onclick="setStatus('APPROVED')">Approve & send</button>
+        <button class="danger" onclick="setStatus('DISMISSED')">Dismiss</button>
+      </div>
+    </div>`;
+  $('#overlay').classList.add('open');$('#drawer').classList.add('open');
+}
+function closeDrawer(){$('#overlay').classList.remove('open');$('#drawer').classList.remove('open')}
+function draftHtml(drafts){return drafts.map((d,i)=>`
+  <div class="draft-head"><b>${d.label}</b><span class="muted">${d.model} · ${d.seconds}s</span>
+  <button class="small" onclick="navigator.clipboard.writeText(document.getElementById('dr${i}').value);toast('Copied.')">Copy</button></div>
+  <textarea class="draft-box" id="dr${i}">${d.text.replace(/</g,'&lt;')}</textarea>`).join('')}
+async function genDrafts(){
+  const b=$('#gen-btn');b.disabled=true;b.innerHTML='<span class="spin"></span> Gemma is writing (15-60s)…';
+  try{const r=await api(`/alerts/${CUR.id}/drafts`,{method:'POST'});CUR.drafts=r.drafts;
+    $('#drafts-area').innerHTML=draftHtml(r.drafts);await refresh();}
+  catch(e){b.disabled=false;b.textContent='Retry drafting';toast('Draft failed: '+e.message)}
+}
+async function setStatus(s){await api(`/alerts/${CUR.id}/status/${s}`,{method:'POST'});await refresh();closeDrawer();toast(s==='APPROVED'?'Approved. The letters are ready to send.':'Dismissed.')}
+function showPath(){closeDrawer();document.querySelector('nav a[data-v=graph]').click();setTimeout(()=>animatePath(CUR.path.map(p=>p.gstin)),300)}
+
+/* ── counterfactual ── */
+async function simulate(gstin,name){
+  const box=$('#sim-inline')||$('#simpanel');
+  box.innerHTML='<span class="spin"></span> re-running the deterministic layer…';
+  try{const r=await api('/simulate/'+encodeURIComponent(gstin),{method:'POST'});
+    box.innerHTML=`<div class="card-sec" style="margin-top:10px;border-color:var(--gold)">
+      <h4>🔮 COUNTERFACTUAL — remove ${name}</h4>
+      <p>Exposure: <span class="num" style="color:var(--red)">${inr(r.before.exposure)}</span> →
+      <span class="num" style="color:var(--green)">${inr(r.after.exposure)}</span>
+      &nbsp;·&nbsp; you save <b class="num" style="color:var(--gold)">${inr(r.saved)}</b></p>
+      ${r.resolved_findings.length?`<p class="muted" style="margin-top:6px">Resolves: ${r.resolved_findings.join(' · ')}</p>`:''}
+      <p class="muted" style="margin-top:6px">Same math, different world. No opinion involved.</p></div>`;
+  }catch(e){box.textContent='Simulation failed: '+e.message}
+}
+
+/* ── graph ── */
+function drawGraph(){
+  const g=STATE.graph,svg=$('#graph');if(!g.nodes.length){svg.innerHTML='<text x="480" y="280" text-anchor="middle" fill="#5a6b7e">Ingest documents first — the network appears here.</text>';return}
+  const W=960,H=560,cx=W/2,cy=H/2,R=Math.min(W,H)/2-70;
+  const pos={};g.nodes.forEach((n,i)=>{const a=2*Math.PI*i/g.nodes.length-Math.PI/2;
+    pos[n.id]=[cx+R*Math.cos(a),cy+R*Math.sin(a)]});
+  const col={ring:'var(--red)',hop1:'var(--orange)',hop2:'var(--amber)',clean:'#3b82f6'};
+  let s=`<defs><marker id="arr" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3a4a5d"/></marker></defs>`;
+  g.edges.forEach((e,i)=>{const[x1,y1]=pos[e.source],[x2,y2]=pos[e.target];
+    const mx=(x1+x2)/2,my=(y1+y2)/2;
+    s+=`<path id="e${i}" class="gedge ${e.in_ring?'ring':''}" data-s="${e.source}" data-t="${e.target}" d="M${x1} ${y1} L${x2} ${y2}"/>`;
+    s+=`<text class="elabel" x="${mx}" y="${my-6}" text-anchor="middle">${inr(e.amount)}</text>`});
+  g.nodes.forEach(n=>{const[x,y]=pos[n.id];
+    s+=`<g class="gnode" onclick="graphSim('${n.id}','${n.name.replace(/'/g,"\\'")}')">
+      <circle cx="${x}" cy="${y}" r="26" fill="var(--panel2)" stroke="${col[n.role]}" ${n.horizon?'stroke-dasharray="4 4"':''} ${n.role==='ring'?'style="animation:pulse 1.6s infinite"':''}>${n.horizon?'<title>Visibility Horizon: we hold no purchase-side invoices for this company — its suppliers are unknown to this graph.</title>':''}</circle>
+      <text x="${x}" y="${y-34}">${n.name}</text>
+      <text class="gst" x="${x}" y="${y+44}">${n.id}</text>
+      <text x="${x}" y="${y+5}" style="font-size:15px">${n.role==='ring'?'🔥':n.role==='hop1'?'⚠️':n.role==='hop2'?'⚡':'✅'}</text></g>`});
+  svg.innerHTML=s;
+}
+function graphSim(gstin,name){
+  $('#simpanel').style.display='block';
+  const p=$('#simpanel');p.innerHTML=`<h4>🔮 Simulate: remove ${name}?</h4><button class="primary small" onclick="simPanelRun('${gstin}','${name.replace(/'/g,"\\'")}')">Run counterfactual</button> <button class="small" onclick="this.parentElement.style.display='none'">✕</button>`;
+}
+async function simPanelRun(gstin,name){
+  const p=$('#simpanel');p.innerHTML='<span class="spin"></span> re-running the math…';
+  try{const r=await api('/simulate/'+encodeURIComponent(gstin),{method:'POST'});
+    p.innerHTML=`<h4>🔮 Without ${name}</h4>
+      <p>Exposure <span class="num" style="color:var(--red)">${inr(r.before.exposure)}</span> → <span class="num" style="color:var(--green)">${inr(r.after.exposure)}</span></p>
+      <p>Saved: <b class="num" style="color:var(--gold)">${inr(r.saved)}</b></p>
+      ${r.resolved_findings.map(f=>`<p class="muted">✓ ${f}</p>`).join('')}
+      <button class="small" style="margin-top:8px" onclick="this.parentElement.style.display='none'">Close</button>`;
+  }catch(e){p.textContent=e.message}
+}
+function animatePath(gstins){
+  const edges=[...document.querySelectorAll('.gedge')];
+  for(let i=0;i<gstins.length-1;i++){
+    setTimeout(()=>{const e=edges.find(x=>x.dataset.s===gstins[i]&&x.dataset.t===gstins[i+1])||edges.find(x=>x.dataset.s===gstins[i+1]&&x.dataset.t===gstins[i]);
+      if(e)e.classList.add('hot')},600*i);
+  }
+  toast('Following the money…');
+}
+
+/* ── evidence playback ── */
+function startPlayback(){
+  if(!CUR)return;
+  const inv=STATE.invoices.find(i=>CUR.invoice_ids.includes(i.id))||{};
+  const steps=[
+    ['Document ingested',inv.file||'ledger records'],
+    ['Gemma 4 read the paper',(inv.timings&&inv.timings.main)?inv.timings.main+'s on-device, zero network':'vision extraction'],
+    ['Trust layer verified every number',(inv.receipts||[]).filter(r=>r.kind==='repair').map(r=>r.msg).join(' · ')||'all fields passed checksum + arithmetic'],
+    ['Supplier graph built','every GSTIN a node, every invoice an edge'],
+    ['Deterministic rule fired',CUR.rule+' — '+CUR.section],
+    ['Exposure computed',inr(CUR.impact)+' — '+CUR.impact_label],
+    ['Action engine drafted the paperwork',CUR.drafts?CUR.drafts.length+' documents ready':'press "Draft the paperwork" to finish the story'],
+  ];
+  $('#d-body').innerHTML=`<div class="card-sec"><h4>▶ EVIDENCE PLAYBACK — how CHAKRA reached this conclusion</h4>
+    ${steps.map((s,i)=>`<div class="pb-step" id="pb${i}"><div class="n">${i+1}</div><div class="t"><b>${s[0]}</b><span>${s[1]}</span></div></div>`).join('')}
+    <p style="margin-top:14px"><button class="small" onclick="openAlert('${CUR.id}')">← Back to the card</button></p></div>`;
+  steps.forEach((_,i)=>setTimeout(()=>{const el=$('#pb'+i);if(el)el.classList.add('on')},450*(i+1)));
+}
+
+/* ── time machine ── */
+async function loadTimeline(){
+  try{TL=await api('/timeline');
+    const s=$('#tl-slider');s.max=Math.max(TL.steps.length-1,0);s.value=s.max;tlShow(+s.value);
+  }catch(e){$('#tl-info').textContent=e.message}
+}
+function tlShow(i){
+  if(!TL||!TL.steps.length){$('#tl-info').innerHTML='<span class="muted">Ingest documents first.</span>';return}
+  const st=TL.steps[i];
+  $('#tl-info').innerHTML=`<b style="font-family:var(--mono)">${st.date}</b> · ${st.invoices} invoices in the network
+    <div class="exposure-big" style="margin-top:6px">${inr(st.exposure)}</div>
+    <p class="muted">exposure at this point in time · ${st.alerts} findings</p>
+    ${st.new_findings.length?`<p class="newfind" style="margin-top:8px">⚡ NEW on this date (trigger: ${st.trigger_file}):<br>${st.new_findings.join('<br>')}</p>`:'<p class="muted" style="margin-top:8px">no new findings on this date</p>'}`;
+}
+
+/* ── boot ── */
+pollStatus();setInterval(pollStatus,5000);refresh();
+</script>
+</body>
+</html>
