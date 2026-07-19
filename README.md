@@ -8,6 +8,7 @@ Compliance & Risk Triage). Everything runs on one laptop, offline: Gemma 4
 via LM Studio reads the paper and writes the paperwork; deterministic
 graph + arithmetic decide everything in between.
 
+
 ## Run it (Windows / Mac)
 
 ```bash
