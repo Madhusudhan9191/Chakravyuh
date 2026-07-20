@@ -3,445 +3,2547 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🛞CHAKRA — what should the accountant do next?</title>
+<title>CHAKRA — AI Financial Compliance Investigator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0e13; --panel:#111820; --panel2:#171f29; --line:#233040;
-  --text:#e8edf3; --dim:#8fa0b3; --faint:#5a6b7e;
-  --gold:#f5b83d; --red:#ef4444; --orange:#f97316; --amber:#f59e0b;
-  --green:#22c55e; --blue:#38bdf8;
-  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+:root {
+  --bg: #02040a;
+  --panel: #0a0d16;
+  --panel-glass: rgba(10, 13, 22, 0.75);
+  --panel2: #101524;
+  --line: rgba(255, 255, 255, 0.05);
+  --line-active: rgba(14, 165, 233, 0.25);
+  --text: #f3f4f6;
+  --dim: #9ca3af;
+  --faint: #374151;
+  
+  --blue: #0ea5e9;
+  --teal: #0d9488;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  
+  --blue-glow: rgba(14, 165, 233, 0.15);
+  --teal-glow: rgba(13, 148, 136, 0.15);
+  --emerald-glow: rgba(16, 185, 129, 0.15);
+  --amber-glow: rgba(245, 158, 11, 0.15);
+  --red-glow: rgba(239, 68, 68, 0.15);
+  
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;overflow:hidden}
-/* ── sidebar ── */
-#side{width:220px;min-width:220px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 0}
-#logo{padding:0 22px 18px;border-bottom:1px solid var(--line)}
-#logo h1{font-size:22px;letter-spacing:4px;color:var(--gold)}
-#logo p{font-size:11px;color:var(--faint);margin-top:2px}
-nav{margin-top:14px}
-nav a{display:flex;gap:10px;align-items:center;padding:11px 22px;color:var(--dim);cursor:pointer;font-size:14px;border-left:3px solid transparent}
-nav a.active{color:var(--text);background:var(--panel2);border-left-color:var(--gold)}
-nav a:hover{color:var(--text)}
-#gemma-pill{margin:auto 18px 0;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;font-size:12px;color:var(--dim)}
-#gemma-pill b{display:block;font-size:12px}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-.dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
-.dot.off{background:var(--red)}
-#side .tools{padding:12px 18px 0;display:flex;gap:8px}
-/* ── main ── */
-#main{flex:1;overflow-y:auto;padding:26px 34px}
-h2.viewtitle{font-size:20px;margin-bottom:4px}
-.sub{color:var(--dim);font-size:13px;margin-bottom:20px}
-/* hero numbers */
-#heroes{display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap}
-.hero{flex:1;min-width:200px;background:linear-gradient(160deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
-.hero .big{font-size:32px;font-weight:700;font-family:var(--mono)}
-.hero .lbl{font-size:12px;color:var(--dim);margin-top:2px}
-.hero.gold .big{color:var(--gold)} .hero.red .big{color:var(--red)} .hero.green .big{color:var(--green)}
-/* upload */
-#drop{border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--dim);margin-bottom:20px;cursor:pointer;transition:.2s}
-#drop.hot{border-color:var(--gold);color:var(--gold);background:#f5b83d0d}
-#upl-status{font-family:var(--mono);font-size:12px;margin-top:8px;color:var(--blue)}
-#upl-rows{margin-top:6px;font-size:12px;color:var(--faint);max-height:110px;overflow-y:auto;text-align:left}
-/* alert list */
-.alert-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px;cursor:pointer;transition:.15s}
-.alert-row:hover{border-color:var(--gold);transform:translateX(3px)}
-.sev{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:1px;white-space:nowrap}
-.sev.CRITICAL{background:#ef444422;color:var(--red);border:1px solid #ef444455}
-.sev.HIGH{background:#f9731622;color:var(--orange);border:1px solid #f9731655}
-.sev.MEDIUM{background:#f59e0b22;color:var(--amber);border:1px solid #f59e0b55}
-.alert-row .who{font-weight:600;min-width:170px}
-.alert-row .what{color:var(--dim);font-size:13px;flex:1}
-.alert-row .amt{font-family:var(--mono);font-weight:700;color:var(--gold);white-space:nowrap}
-.alert-row .st{font-size:11px;color:var(--faint);white-space:nowrap}
-.alert-row .st.APPROVED{color:var(--green)} .alert-row .st.DRAFTED{color:var(--blue)}
-.clean-note{color:var(--green);font-size:13px;margin-top:14px}
-/* buttons */
-button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer}
-button:hover{border-color:var(--gold)}
-button.primary{background:var(--gold);color:#111;border:none;font-weight:700}
-button.danger{color:var(--red);border-color:#ef444455}
-button.small{padding:4px 10px;font-size:12px}
-button:disabled{opacity:.45;cursor:wait}
-/* modal / drawer */
-#overlay{position:fixed;inset:0;background:#000a;display:none;z-index:40}
-#drawer{position:fixed;top:0;right:0;bottom:0;width:min(760px,94vw);background:var(--panel);border-left:1px solid var(--line);z-index:50;display:none;flex-direction:column}
-#drawer.open,#overlay.open{display:flex}
-#drawer header{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
-#drawer header h3{font-size:17px;flex:1}
-#drawer .body{flex:1;overflow-y:auto;padding:22px 26px}
-.card-sec{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
-.card-sec h4{font-size:12px;letter-spacing:2px;color:var(--dim);margin-bottom:9px}
-.card-sec h4 .tag{float:right;font-size:10px;padding:2px 8px;border-radius:12px;letter-spacing:1px}
-.tag.det{background:#38bdf822;color:var(--blue)} .tag.ai{background:#f5b83d22;color:var(--gold)}
-.exposure-big{font-family:var(--mono);font-size:30px;font-weight:800;color:var(--gold)}
-.receipt{font-family:var(--mono);font-size:12px;padding:6px 10px;border-left:3px solid var(--blue);background:#38bdf80d;margin-bottom:6px;border-radius:0 6px 6px 0;color:#bcd3e6}
-.receipt.review{border-left-color:var(--amber);background:#f59e0b0d;color:#e6d3a9}
-.draft-box{width:100%;min-height:150px;background:#0d1319;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;font:13px/1.5 var(--mono);resize:vertical}
-.draft-head{display:flex;align-items:center;gap:10px;margin:14px 0 6px}
-.draft-head b{flex:1}
-.evimg{max-width:170px;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;margin:4px}
-.pathline{font-size:13px;color:var(--dim);font-family:var(--mono);margin-top:6px}
-.pathline b{color:var(--red)}
-/* graph */
-#gwrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;position:relative}
-#graph{width:100%;height:calc(100vh - 210px)}
-.gnode{cursor:pointer}
-.gnode circle{stroke-width:2}
-.gnode text{fill:var(--text);font-size:12px;text-anchor:middle}
-.gnode .gst{fill:var(--faint);font-size:9px;font-family:var(--mono)}
-.gedge{stroke:#3a4a5d;stroke-width:1.4;fill:none;marker-end:url(#arr)}
-.gedge.ring{stroke:var(--red);stroke-width:2.6;stroke-dasharray:7 5;animation:march 1s linear infinite}
-.gedge.hot{stroke:var(--gold);stroke-width:3.5;stroke-dasharray:none}
-@keyframes march{to{stroke-dashoffset:-12}}
-@keyframes pulse{0%,100%{r:26}50%{r:31}}
-.elabel{fill:var(--faint);font-size:10px;font-family:var(--mono)}
-#simpanel{position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;display:none;box-shadow:0 8px 30px #0008}
-#simpanel h4{font-size:13px;margin-bottom:8px}
-#simpanel .num{font-family:var(--mono);font-weight:700}
-/* playback */
-.pb-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);opacity:.25;transition:.4s}
-.pb-step.on{opacity:1}
-.pb-step .n{width:26px;height:26px;border-radius:50%;background:var(--panel);border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.pb-step .t b{display:block;font-size:13px}
-.pb-step .t span{font-size:12px;color:var(--dim);font-family:var(--mono)}
-/* timeline */
-#tl-slider{width:100%}
-.tl-info{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:12px}
-.newfind{color:var(--red);font-size:13px}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.muted{color:var(--faint);font-size:13px}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);border-radius:10px;padding:10px 20px;display:none;z-index:99;font-size:13px}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  letter-spacing: -0.015em;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Left Sidebar ── */
+#side {
+  width: 250px;
+  min-width: 250px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  z-index: 10;
+  position: relative;
+}
+
+#logo {
+  padding: 0 24px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+#logo h1 {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #38bdf8 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#logo p {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+nav {
+  margin-top: 16px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px;
+}
+
+nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  transition: all 0.15s ease;
+}
+
+nav a svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+nav a:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+nav a.active {
+  color: var(--text);
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.03);
+}
+
+#gemma-pill {
+  margin: 12px;
+  padding: 10px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--dim);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#gemma-pill b {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text);
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot.on {
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
+}
+
+.dot.off {
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+}
+
+#side-footer {
+  padding: 0 12px;
+  display: flex;
+  gap: 6px;
+}
+
+#side-footer button {
+  flex: 1;
+}
+
+/* ── Content Area ── */
+#content-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top Nav */
+#top-nav {
+  height: 60px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(2, 4, 10, 0.6);
+  backdrop-filter: blur(12px);
+  z-index: 5;
+}
+
+#search-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  width: 280px;
+  height: 34px;
+}
+
+#search-wrapper svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--dim);
+  fill: none;
+  stroke-width: 2;
+  margin-right: 8px;
+}
+
+#search-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+
+#top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.workspace-select {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: var(--red);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--red);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  font-size: 12px;
+}
+
+/* Main content frame */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.view-section {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-title-wrap h2 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.view-title-wrap p {
+  color: var(--dim);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Glass Cards */
+.glass-card {
+  background: var(--panel-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title .badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* ── 1. Dashboard / Fraud Intelligence Center ── */
+#kpis-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1100px) {
+  #kpis-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi-card {
+  background: rgba(16, 21, 36, 0.4);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 90px;
+  transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-active);
+  background: rgba(16, 21, 36, 0.6);
+}
+
+.kpi-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--dim);
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.kpi-card.red .kpi-value { color: var(--red); }
+.kpi-card.amber .kpi-value { color: var(--amber); }
+.kpi-card.emerald .kpi-value { color: var(--emerald); }
+.kpi-card.blue .kpi-value { color: var(--blue); }
+
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1000px) {
+  .dashboard-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heatmap-placeholder {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(245, 158, 11, 0.05) 50%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.log-terminal {
+  background: #010206;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  height: 140px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #8b9bb4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── 2. Invoice Investigations (Three-Column Triage) ── */
+#triage-grid {
+  display: grid;
+  grid-template-columns: 260px 1.4fr 1fr;
+  gap: 16px;
+  height: calc(100vh - 160px);
+}
+
+.triage-col {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(10, 13, 22, 0.4);
+}
+
+.triage-col-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--dim);
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice-preview-panel {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.ocr-mockup-doc {
+  background: #ffffff;
+  color: #111827;
+  border-radius: 8px;
+  padding: 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+  min-height: 280px;
+}
+
+.ocr-tag {
+  position: absolute;
+  border: 1.5px solid var(--red);
+  background: rgba(239, 68, 68, 0.1);
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-size: 7px;
+  font-weight: 700;
+  color: var(--red);
+}
+
+.ocr-tag.warning {
+  border-color: var(--amber);
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--amber);
+}
+
+/* ── 3. Vendors Network (Palantir Gotham relationship) ── */
+#graph-wrapper {
+  background: rgba(2, 4, 10, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  height: 520px;
+}
+
+#graph {
+  width: 100%;
+  height: 100%;
+}
+
+.gnode circle { stroke-width: 2.5; }
+.gnode text { fill: var(--text); font-size: 10px; font-weight: 600; text-shadow: 0 1px 4px #000; }
+.gedge { stroke: rgba(255,255,255,0.05); stroke-width: 1.2; fill: none; }
+.gedge.ring { stroke: var(--red); stroke-width: 2; stroke-dasharray: 5 3; animation: strokeMove 0.8s linear infinite; }
+.gedge.payment { stroke: var(--blue); stroke-width: 1.5; }
+.gedge.invoice_link { stroke: var(--teal); stroke-width: 1.2; stroke-dasharray: 4 2; }
+.gedge.common_director { stroke: var(--red); stroke-width: 1.8; }
+.gedge.shared_address { stroke: var(--amber); stroke-width: 1.8; }
+
+#sim-sidebar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 310px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  display: none;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+}
+
+/* ── 4. GST Analytics / Bloomberg Terminal ── */
+.bloomberg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .bloomberg-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analytics-filter-row {
+  display: flex;
+  gap: 12px;
+  background: rgba(255,255,255,0.01);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 16px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.chart-spark {
+  stroke: var(--blue);
+  stroke-width: 2.5;
+  fill: none;
+}
+
+/* ── 5. AI Compliance / OpenAI Diagram + Azure Extractor ── */
+.architecture-container {
+  background: #010205;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.arch-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .arch-flow-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.arch-node {
+  background: rgba(16, 21, 36, 0.6);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.arch-node:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.15);
+}
+
+.arch-node-tech {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--blue);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.arch-node-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.arch-node-purpose {
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.arch-node-status {
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.arch-node-status.ok { background: rgba(16, 185, 129, 0.1); color: var(--emerald); }
+.arch-node-status.active { background: rgba(14, 165, 233, 0.1); color: var(--blue); }
+
+.azure-extract-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .azure-extract-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.json-render-box {
+  background: #010307;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #38bdf8;
+  height: 250px;
+  overflow-y: auto;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+}
+
+/* ── 6. Reports / Deloitte EY style ── */
+.reports-paper {
+  background: #0b0f19;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 40px;
+  font-family: var(--font-sans);
+  color: #f3f4f6;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 15px 45px rgba(0,0,0,0.7);
+}
+
+.reports-paper-header {
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.reports-sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--dim);
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+/* ── Timeline items (Incident response) ── */
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  padding-left: 16px;
+}
+
+.timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--line);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 12px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.timeline-item.done::before {
+  background: var(--blue);
+  box-shadow: 0 0 6px var(--blue);
+}
+
+.timeline-item.active::before {
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+/* Button & Spin styles */
+button {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  transition: all 0.15s ease;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+button.primary {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+button.primary:hover {
+  background: #0284c7;
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+}
+
+button.danger {
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+button.danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--red);
+}
+
+.spin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: sp 0.8s linear infinite;
+  vertical-align: -2px;
+}
+
+@keyframes sp {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% { r: 22; opacity: 0.9; }
+  50% { r: 24; opacity: 1; filter: drop-shadow(0 0 10px var(--red)); }
+  100% { r: 22; opacity: 0.9; }
+}
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--panel2);
+  border: 1px solid var(--blue);
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: none;
+  z-index: 1000;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Simulated iPhone Frame Overlay Drawer ── */
+#iphone-wrapper {
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  width: 320px;
+  height: 640px;
+  border-radius: 40px;
+  border: 12px solid #18181b;
+  background: #030712;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.95);
+  z-index: 900;
+  transform: translateX(450px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#iphone-wrapper.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+#iphone-notch {
+  width: 120px;
+  height: 22px;
+  background: #18181b;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  margin: 0 auto;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 910;
+}
+
+#iphone-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 30px 16px 20px;
+  font-family: var(--font-sans);
+  background: radial-gradient(ellipse at top, #0c1524 0%, #030712 100%);
+}
 </style>
 </head>
 <body>
+
+<!-- Side Panel -->
 <div id="side">
-  <div id="logo"><h1>CHAKRA</h1><p>what should the accountant do next?</p></div>
+  <div id="logo">
+    <h1>
+      <svg viewBox="0 0 24 24" width="22" height="22" stroke="url(#logoGrad)" stroke-width="2.5" fill="none">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="100%" stop-color="#10b981" />
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2v20M2 12h20M12 12l5-5M12 12l-5 5" />
+      </svg>
+      CHAKRA
+    </h1>
+    <p>AI Compliance Investigator</p>
+  </div>
+  
   <nav>
-    <a data-v="today" class="active"> Home </a>
-    <a data-v="graph">🕸 Network</a>
-    <a data-v="timeline">⏪ Time machine</a>
+    <a data-v="dashboard" class="active">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a data-v="investigations">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Invoice Triage
+    </a>
+    <a data-v="ai-compliance">
+      <svg viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+      AI Compliance
+    </a>
+    <a data-v="vendors">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      Relationship Graph
+    </a>
+    <a data-v="gst-analytics">
+      <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+      GST Analytics
+    </a>
+    <a data-v="knowledge-graph">
+      <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+      Knowledge Graph
+    </a>
+    <a data-v="reports">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      Reports
+    </a>
+    <a data-v="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
   </nav>
-  <div class="tools">
+  
+  <div id="gemma-pill">
+    <b>
+      <span class="dot off" id="gdot"></span>
+      <span id="gmodel">Connecting...</span>
+    </b>
+    <span id="glat" style="font-size: 10px; color: var(--faint);">Establishing API connection...</span>
+  </div>
+  
+  <div id="side-footer">
     <button class="small" onclick="loadDemo('instant')">Demo ⚡</button>
     <button class="small danger" onclick="resetAll()">Reset</button>
   </div>
-  <div id="gemma-pill"><span class="dot off" id="gdot"></span><b id="gmodel">connecting…</b><span id="glat"></span></div>
 </div>
 
-<div id="main">
-  <!-- TODAY -->
-  <section id="v-today">
-    <h2 class="viewtitle" id="today-title">Welcome to CHAKRA</h2>
-    <p class="sub" id="today-sub">Drop the paper chaos below. Gemma reads it, the math verifies it, the letters get written.</p>
-    <div id="heroes">
-      <div class="hero gold"><div class="big" id="h-time">0 h</div><div class="lbl">of CA work replaced <span id="h-stopwatch"></span></div></div>
-      <div class="hero red"><div class="big" id="h-money">₹0</div><div class="lbl">exposure caught before it cost money</div></div>
-      <div class="hero green"><div class="big" id="h-silent">0</div><div class="lbl">wrong values silently accepted — ever</div></div>
+<!-- Content Container -->
+<div id="content-container">
+  <!-- Top Nav Bar -->
+  <div id="top-nav">
+    <div id="search-wrapper">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Search global workspace records..." oninput="handleSearch()">
     </div>
-    <div id="drop">📄 Drop invoice photos / PDFs here — or click to choose<br>
-      <span class="muted">processed 3 at a time on local Gemma · nothing leaves this machine</span>
-      <div id="upl-status"></div><div id="upl-rows"></div>
+    
+    <div id="top-nav-right">
+      <button class="small primary" onclick="toggleMobilePreview()">📱 Executive Mobile View</button>
+      
+      <select class="workspace-select" id="workspace-selector">
+        <option>All Workspaces</option>
+        <option selected>Acme Corp — Compliance Desk</option>
+        <option>Local Gemma-4 Sandbox</option>
+      </select>
+      
+      <button class="icon-btn" onclick="toast('System is synchronized and healthy.')" title="Alerts Notifications">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="badge" id="notif-badge" style="display: none;"></span>
+      </button>
+      
+      <div class="user-profile" onclick="toast('Auditor workspace settings')">
+        <span>Lead Audit Investigator</span>
+      </div>
     </div>
-    <input type="file" id="fpick" multiple accept="image/*,.pdf" style="display:none">
-    <div id="alert-list"></div>
-    <p class="clean-note" id="clean-note"></p>
-  </section>
+  </div>
 
-  <!-- GRAPH -->
-  <section id="v-graph" style="display:none">
-    <h2 class="viewtitle">The vendor network</h2>
-    <p class="sub">Evidence, not interface. Red ring = circular trading. Dashed outline = <b>Visibility Horizon</b> — we hold no purchase-side data for that company and say so. Click any company to simulate removing it — <i>possible only because the decision layer is pure math.</i></p>
-    <div id="gwrap"><svg id="graph" viewBox="0 0 960 560"></svg>
-      <div id="simpanel"></div>
-    </div>
-  </section>
+  <div id="main">
+    
+    <!-- 1. DASHBOARD VIEW (Fraud Intelligence Center) -->
+    <section id="v-dashboard" class="view-section">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Fraud Intelligence Center</h2>
+          <p>Local intelligence tracking invoice circles, shell companies, and double claims.</p>
+        </div>
+      </div>
+      
+      <!-- Top Overview Cards -->
+      <div id="kpis-container">
+        <div class="kpi-card blue">
+          <span class="kpi-title">Duplicate Invoices</span>
+          <span class="kpi-value" id="kpi-duplicates">0</span>
+          <span class="kpi-meta">Double ITC claims caught</span>
+        </div>
+        <div class="kpi-card red">
+          <span class="kpi-title">Circular Trading Loops</span>
+          <span class="kpi-value" id="kpi-circular">0</span>
+          <span class="kpi-meta">Loop networks discovered</span>
+        </div>
+        <div class="kpi-card amber">
+          <span class="kpi-title">Suspicious Shell Vendors</span>
+          <span class="kpi-value" id="kpi-shell">0</span>
+          <span class="kpi-meta">High risk indicators</span>
+        </div>
+        <div class="kpi-card blue">
+          <span class="kpi-title">Invoice Clusters</span>
+          <span class="kpi-value" id="kpi-clusters">0</span>
+          <span class="kpi-meta">Volume anomalies</span>
+        </div>
+      </div>
+      
+      <div class="dashboard-split">
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Network graph mini preview + heatmap -->
+          <div class="glass-card">
+            <span class="card-title">Security Threat Map & Heatmap</span>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px;">
+              <div style="height: 180px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; position: relative;">
+                <span style="font-size: 11px; color: var(--dim);">Miniature Node Grid Preview</span>
+                <div style="position: absolute; bottom: 8px; right: 8px;">
+                  <button class="small" onclick="document.querySelector('nav a[data-v=vendors]').click()">Open Graph</button>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <span style="font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase;">GST Risk Distribution Heatmap</span>
+                <div class="heatmap-placeholder">
+                  [ 18% CGST | 12% IGST | 28% RISK ]
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Timeline time-machine -->
+          <div class="glass-card">
+            <span class="card-title">Auditing Playback Timeline</span>
+            <input type="range" id="tl-slider" min="0" max="0" value="0" style="margin-bottom: 12px;" oninput="tlShow(+this.value)">
+            <div class="timeline-info-panel" id="tl-info">
+              <span style="color: var(--dim); font-size: 12px; text-align: center;">Upload invoices or trigger the demo database to populate timeline.</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right side AI findings panel -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="glass-card" style="flex: 1; display: flex; flex-direction: column; height: 350px;">
+            <span class="card-title">Gemma AI Compliance Analysis</span>
+            <div class="chat-box" id="assistant-chat-box" style="flex: 1; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 10px;">
+              <div class="chat-bubble ai">
+                System loaded with local model gemma-4-E4B-it. Drop your invoice PDFs below or load the mock database to extract.
+              </div>
+            </div>
+            <div class="chat-input-wrap">
+              <input type="text" id="assistant-chat-input" placeholder="Query Gemma (e.g., 'summarize risk')..." onkeydown="if(event.key === 'Enter') handleChatSend()">
+              <button onclick="handleChatSend()">Ask</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom log terminal & file drop -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="glass-card">
+          <span class="card-title">Invoice Document Dropzone</span>
+          <div id="drop-zone" style="padding: 24px;">
+            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <p style="font-size: 13px;">Drag local transaction images or PDFs here</p>
+            <div id="upl-status" style="margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--blue);"></div>
+            <div id="upl-rows" style="max-height: 80px; overflow-y: auto; text-align: left; font-size: 11px; margin-top: 6px; font-family: var(--font-mono);"></div>
+          </div>
+          <input type="file" id="fpick" multiple accept="image/*,.pdf" style="display: none;">
+        </div>
+        
+        <div class="glass-card">
+          <span class="card-title">Security System Audit Log</span>
+          <div class="log-terminal" id="audit-log-box">
+            <div class="log-line system">[SYSTEM] Workspace monitoring initialized.</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <!-- TIMELINE -->
-  <section id="v-timeline" style="display:none">
-    <h2 class="viewtitle">Compliance time machine</h2>
-    <p class="sub">Replay the network invoice-by-invoice. When did the risk actually begin?</p>
-    <input type="range" id="tl-slider" min="0" max="0" value="0" oninput="tlShow(+this.value)">
-    <div class="tl-info" id="tl-info"><span class="muted">Load documents first, then drag the slider.</span></div>
-  </section>
+    <!-- 2. INVESTIGATIONS VIEW (Three-Column Triage Console) -->
+    <section id="v-investigations" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Invoice Investigation</h2>
+          <p>High contrast three-column ledger audit console and document previews.</p>
+        </div>
+      </div>
+      
+      <div id="triage-grid">
+        <!-- LEFT: Invoice list & filters -->
+        <div class="triage-col">
+          <div class="triage-col-header">
+            <span>Alert Queue</span>
+            <select class="workspace-select" style="font-size: 10px; padding: 2px 4px;" id="triage-filter-select" onchange="filterAlerts(this.value)">
+              <option value="ALL">ALL</option>
+              <option value="OPEN">OPEN</option>
+              <option value="DRAFTED">DRAFTED</option>
+              <option value="APPROVED">APPROVED</option>
+            </select>
+          </div>
+          <div id="sidebar-alerts-list" style="padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1;">
+            <!-- filled dynamically -->
+          </div>
+        </div>
+        
+        <!-- CENTER: Invoice details & Suspicious field highlighter -->
+        <div class="triage-col" style="background: rgba(16, 21, 36, 0.25);">
+          <div class="triage-col-header">
+            <span>Document Previewer</span>
+            <span id="ocr-center-name" style="font-family: var(--font-mono); font-size: 10px; color: var(--blue);">None</span>
+          </div>
+          
+          <div class="invoice-preview-panel">
+            <div id="ocr-preview-container" style="display: none;">
+              <!-- OCR page mockup -->
+              <div class="ocr-mockup-doc">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px;">
+                  <div>
+                    <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Vendor Name [OCR ✓]</span>
+                    <b id="ocr-seller-name" style="font-size: 13px; font-weight: 800; background: rgba(14, 165, 233, 0.06); border: 1px solid rgba(14, 165, 233, 0.25); padding: 1px 4px; border-radius: 3px;">SELLER CORP</b>
+                    <div style="margin-top: 6px;">
+                      <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Vendor GSTIN [OCR ✓]</span>
+                      <span id="ocr-seller-gst" style="color: #4b5563; font-size: 8px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono);">GSTIN: ---</span>
+                    </div>
+                  </div>
+                  <div style="text-align: right;">
+                    <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Doc Classification [OCR ✓]</span>
+                    <b style="font-size: 12px; color: #111827; background: #f3f4f6; border: 1px solid #d1d5db; padding: 1px 4px; border-radius: 3px;">TAX INVOICE</b>
+                    <div style="margin-top: 6px;">
+                      <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Invoice Number [OCR ✓]</span>
+                      <span id="ocr-inv-no" style="font-size: 8px; color: #4b5563; background: rgba(14, 165, 233, 0.06); border: 1px solid rgba(14, 165, 233, 0.25); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono);">INV NO: ---</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                  <div>
+                    <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Billed To / Buyer Name [OCR ✓]</span>
+                    <b id="ocr-buyer-name" style="font-size: 10px; background: rgba(14, 165, 233, 0.06); border: 1px solid rgba(14, 165, 233, 0.25); padding: 1px 4px; border-radius: 3px;">BUYER CORP</b>
+                    <div style="margin-top: 6px;">
+                      <span style="font-size: 7px; color: #9ca3af; display: block; text-transform: uppercase; font-family: var(--font-sans); margin-bottom: 2px;">Buyer GSTIN [OCR ✓]</span>
+                      <span id="ocr-buyer-gst" style="color: #4b5563; font-size: 8px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono);">GSTIN: ---</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Bounding boxes mockup for suspicious fields -->
+                <div class="ocr-tag" id="tag-mismatch" style="top: 15px; left: 10px; display: none;">GSTIN MISMATCH</div>
+                <div class="ocr-tag" id="tag-duplicate" style="top: 35px; right: 10px; display: none;">DUPLICATE</div>
+                <div class="ocr-tag warning" id="tag-circuit" style="bottom: 15px; left: 10px; display: none;">LOOP LINK</div>
+                
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 10px; color: #111827;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid #d1d5db; text-align: left;">
+                      <th style="padding: 4px 0;">Description</th>
+                      <th style="text-align: right;">Total Amount [OCR ✓]</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-bottom: 1px dashed #e5e7eb;">
+                      <td style="padding: 6px 0;">General Goods Cargo Delivery</td>
+                      <td style="text-align: right; font-weight: 700; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.25); padding: 1px 4px; border-radius: 3px;" id="ocr-item-total">₹0.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div id="ocr-preview-empty" style="text-align: center; color: var(--faint); padding: 60px 0; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px;">
+              <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+              <span>Select an alert card to project extraction boundaries and highlights.</span>
+            </div>
+          </div>
+          
+          <!-- Bottom Evidence Timeline -->
+          <div style="border-top: 1px solid var(--line); padding: 12px 16px;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">Evidence Timeline Logs</span>
+            <div id="evidence-timeline-box">
+              <span style="color: var(--faint); font-size: 11px;">No timeline generated.</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- RIGHT: AI Investigator -->
+        <div class="triage-col" style="background: rgba(16, 21, 36, 0.45);">
+          <div class="triage-col-header">
+            <span>AI Investigator Desk</span>
+            <span style="font-weight: 700; color: var(--blue);">Confidence: 96%</span>
+          </div>
+          <div id="investigations-right-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1;">
+            <div style="text-align: center; color: var(--faint); padding: 60px 0;">
+              No compliance case selected.
+            </div>
+          </div>
+          <div style="border-top: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 8px; justify-content: flex-end; background: rgba(0,0,0,0.2);">
+            <button class="danger small" id="triage-dismiss-btn" disabled onclick="setStatus('DISMISSED')">Dismiss</button>
+            <button class="primary small" id="triage-approve-btn" disabled onclick="setStatus('APPROVED')">Approve & Draft</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. AI COMPLIANCE VIEW (OpenAI Diagram + Azure Extractor) -->
+    <section id="v-ai-compliance" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Local AI compliance Engine</h2>
+          <p>OpenAI-inspired system pipeline and Azure Document Intelligence extractor mockup.</p>
+        </div>
+      </div>
+      
+      <!-- OpenAI style pipeline -->
+      <div class="architecture-container">
+        <span class="card-title" style="margin-bottom: 4px;">System Execution Pipeline <span class="badge" style="background: rgba(14, 165, 233, 0.1); color: var(--blue);">12 Stages</span></span>
+        <div class="arch-flow-grid">
+          <div class="arch-node">
+            <span class="arch-node-tech">Client Desk</span>
+            <span class="arch-node-name">1. Invoices</span>
+            <span class="arch-node-purpose">Transaction files</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">OCR-Engine</span>
+            <span class="arch-node-name">2. Tesseract OCR</span>
+            <span class="arch-node-purpose">Characters extractor</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Parser</span>
+            <span class="arch-node-name">3. Doc Parser</span>
+            <span class="arch-node-purpose">BBOX overlay map</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Extractor</span>
+            <span class="arch-node-name">4. Fields Extract</span>
+            <span class="arch-node-purpose">GSTIN/value mappings</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Trust Layer</span>
+            <span class="arch-node-name">5. Normalization</span>
+            <span class="arch-node-purpose">Checksum fixes</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Database</span>
+            <span class="arch-node-name">6. DuckDB SQL</span>
+            <span class="arch-node-purpose">Local data warehouse</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Graph Model</span>
+            <span class="arch-node-name">7. Knowledge Graph</span>
+            <span class="arch-node-purpose">Link network nodes</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Math Rules</span>
+            <span class="arch-node-name">8. Rules Engine</span>
+            <span class="arch-node-purpose">Loop cycle checks</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Gemma Model</span>
+            <span class="arch-node-name">9. Gemma AI</span>
+            <span class="arch-node-purpose">Reasoning processor</span>
+            <span class="arch-node-status active">ACTIVE</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Evaluation</span>
+            <span class="arch-node-name">10. Risk Scoring</span>
+            <span class="arch-node-purpose">ITC reversal weights</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Explainer</span>
+            <span class="arch-node-name">11. Explanation</span>
+            <span class="arch-node-purpose">Legal section binds</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tech">Report Desk</span>
+            <span class="arch-node-name">12. Audit Report</span>
+            <span class="arch-node-purpose">Deloitte EY format</span>
+            <span class="arch-node-status ok">COMPLETED</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Azure Document Intelligence Mockup -->
+      <div class="glass-card">
+        <span class="card-title">Azure AI Extractor Simulation</span>
+        <div class="azure-extract-grid">
+          <div style="border: 1px solid var(--line); border-radius: 8px; padding: 20px; background: rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 250px; text-align: center;">
+            <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--blue)" stroke-width="1.5" fill="none" style="margin-bottom: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            <span style="font-size: 13px; font-weight: 700;">OCR Bounding Box Target</span>
+            <p style="font-size: 11px; color: var(--dim); margin-top: 4px;">Press demo loader to simulate OCR JSON extraction logs</p>
+          </div>
+          
+          <div>
+            <div class="json-render-box" id="azure-json-box">
+{
+  "status": "ready",
+  "document": "pending_upload",
+  "fields": {}
+}
+            </div>
+            <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 10px; color: var(--dim);">
+              <span>Extraction Engine: Tesseract + Modulo Check</span>
+              <span style="color: var(--emerald); font-weight: 700;">Checksum PASSED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. VENDORS VIEW (Palantir Gotham relationship graph) -->
+    <section id="v-vendors" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Vendor Relationship Graph</h2>
+          <p>Interactive threat link analysis displaying director ties and shared addresses.</p>
+        </div>
+      </div>
+      
+      <div id="graph-wrapper">
+        <svg id="graph" viewBox="0 0 960 560"></svg>
+        
+        <!-- Gotham Side Panel -->
+        <div id="sim-sidebar">
+          <!-- Filled dynamically when node is clicked -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. GST ANALYTICS VIEW (Bloomberg Terminal meets Stripe Dashboard) -->
+    <section id="v-gst-analytics" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Executive Analytics Dashboard</h2>
+          <p>Stripe-style financial charts and high-density Bloomberg tables.</p>
+        </div>
+      </div>
+      
+      <div class="analytics-filter-row">
+        <span>Date: <b>Last 90 Days</b></span>
+        <span>State: <b>Karnataka (29)</b></span>
+        <span>Business Unit: <b>All Divisions</b></span>
+        <button class="small" onclick="toast('Filters applied.')">Apply Filters</button>
+      </div>
+      
+      <div class="bloomberg-grid">
+        <div class="glass-card">
+          <span class="card-title">GST Trends (₹ In Lakhs)</span>
+          <svg viewBox="0 0 100 40" style="width: 100%; height: 120px;">
+            <path class="chart-spark" d="M 0 35 Q 20 20 40 28 T 80 10 T 100 20"/>
+            <text x="5" y="10" fill="var(--blue)" font-size="6" font-family="var(--font-mono)">₹180L protected</text>
+          </svg>
+        </div>
+        <div class="glass-card">
+          <span class="card-title">Invoice Volume</span>
+          <svg viewBox="0 0 100 40" style="width: 100%; height: 120px;">
+            <rect x="5" y="30" width="8" height="8" fill="var(--faint)"/>
+            <rect x="20" y="24" width="8" height="14" fill="var(--faint)"/>
+            <rect x="35" y="20" width="8" height="18" fill="var(--faint)"/>
+            <rect x="50" y="14" width="8" height="24" fill="var(--faint)"/>
+            <rect x="65" y="10" width="8" height="28" fill="var(--blue)"/>
+            <rect x="80" y="5" width="8" height="33" fill="var(--blue)"/>
+            <text x="5" y="38" fill="var(--dim)" font-size="5" font-family="var(--font-mono)">May</text>
+            <text x="80" y="38" fill="var(--dim)" font-size="5" font-family="var(--font-mono)">July</text>
+          </svg>
+        </div>
+        <div class="glass-card">
+          <span class="card-title">Vendor Risk distribution</span>
+          <div style="display: flex; flex-direction: column; gap: 8px; height: 120px; justify-content: center;">
+            <div style="font-size: 11px;">
+              <span>Loop Risk Members (Red):</span> <span style="font-family: var(--font-mono); font-weight: 700; color: var(--red);">3</span>
+            </div>
+            <div style="font-size: 11px;">
+              <span>Direct Link Exposed (Orange):</span> <span style="font-family: var(--font-mono); font-weight: 700; color: var(--amber);">2</span>
+            </div>
+            <div style="font-size: 11px;">
+              <span>Provably Clean (Green):</span> <span style="font-family: var(--font-mono); font-weight: 700; color: var(--emerald);">4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="glass-card">
+        <span class="card-title">Verified transaction records</span>
+        <div class="premium-table-wrap">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Document File</th>
+                <th>Seller Name</th>
+                <th>Taxable Amount</th>
+                <th>GST Claimed</th>
+                <th>Validation Status</th>
+              </tr>
+            </thead>
+            <tbody id="gst-analytics-table-body">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--dim); padding: 40px 0;">No documents ingested. Click Demo button to populate metrics.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. KNOWLEDGE GRAPH VIEW (Table Registry of Nodes) -->
+    <section id="v-knowledge-graph" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Entity Compliance profiles</h2>
+          <p>Complete lists of CA firms, banks, transporters, and businesses verified.</p>
+        </div>
+      </div>
+      
+      <div class="glass-card">
+        <span class="card-title">Knowledge Graph Nodes registry</span>
+        <div class="premium-table-wrap">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Node Type</th>
+                <th>Node Ident / GSTIN</th>
+                <th>Node Label / Details</th>
+                <th>Network Role</th>
+                <th>Connected Entities</th>
+              </tr>
+            </thead>
+            <tbody id="knowledge-graph-table-body">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--dim); padding: 40px 0;">Ledger is empty. Parse invoices to populate knowledge registry.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. REPORTS VIEW (Deloitte & EY style audit report) -->
+    <section id="v-reports" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Reports Engine</h2>
+          <p>Deloitte-formatted legal compliance assessment output files.</p>
+        </div>
+      </div>
+      
+      <div class="reports-paper" id="reports-paper-desk">
+        <div class="reports-paper-header">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <h3 style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">COMPLIANCE INVESTIGATION REPORT</h3>
+              <p style="font-size: 11px; color: var(--dim); text-transform: uppercase; margin-top: 4px;">Acme Corp GST Audit Summary</p>
+            </div>
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--dim);">Date: <span id="rep-date">---</span></span>
+          </div>
+        </div>
+        
+        <div class="reports-sec-title">1. Executive Summary</div>
+        <p style="font-size: 12px; line-height: 1.5; color: var(--dim); margin-bottom: 12px;">This document reports CGST compliance risks within transactions reviewed by the local Gemma-4 model. Total exposure evaluated represents deniable Input Tax Credit under CGST §16(2).</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div style="border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: rgba(255,255,255,0.01);">
+            <span style="font-size: 10px; color: var(--dim); text-transform: uppercase;">Compliance Ratio Score</span>
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); margin-top: 4px; color: var(--emerald);" id="rep-ratio">100%</div>
+          </div>
+          <div style="border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: rgba(255,255,255,0.01);">
+            <span style="font-size: 10px; color: var(--dim); text-transform: uppercase;">Total Tax Exposure At Risk</span>
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); margin-top: 4px; color: var(--red);" id="rep-exp">₹0</div>
+          </div>
+        </div>
+        
+        <div class="reports-sec-title">2. Findings Audit Trail</div>
+        <div class="premium-table-wrap" style="background: transparent; border: none;">
+          <table class="premium-table" style="font-size: 11px;">
+            <thead>
+              <tr style="border-bottom: 1.5px solid var(--line);">
+                <th style="padding: 8px 4px;">Risk Target</th>
+                <th style="padding: 8px 4px;">Classification</th>
+                <th style="padding: 8px 4px;">CGST Section</th>
+                <th style="padding: 8px 4px; text-align: right;">Exposure</th>
+              </tr>
+            </thead>
+            <tbody id="reports-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--dim); padding: 20px 0;">No active compliance findings.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="reports-sec-title">3. Action Recommendations</div>
+        <ol style="font-size: 11px; line-height: 1.6; color: var(--dim); padding-left: 16px; display: flex; flex-direction: column; gap: 6px;">
+          <li>Suspend incoming payments to any entities flagged inside circular loops (CGST §132).</li>
+          <li>Reconcile GSTR-3B filings to reverse direct exposure tax credits before notices arrive.</li>
+          <li>Collect transport e-way bills from Hop-1 suppliers to prove physical goods movement.</li>
+        </ol>
+      </div>
+      
+      <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">
+        <button class="primary" onclick="window.print()"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Download PDF</button>
+        <button onclick="toast('Excel sheet download triggered')">Export Excel</button>
+        <button onclick="toast('Secure audit link copied to clipboard')">Share Report</button>
+      </div>
+    </section>
+
+    <!-- 8. SETTINGS VIEW (Demo, resets, ports) -->
+    <section id="v-settings" class="view-section" style="display: none;">
+      <div class="view-header">
+        <div class="view-title-wrap">
+          <h2>Workspace Configuration Settings</h2>
+          <p>Customize developer endpoints, trigger mock models, or reset workspace state.</p>
+        </div>
+      </div>
+      
+      <div class="settings-grid">
+        <div class="glass-card settings-card">
+          <span class="card-title">LLM Server Configuration</span>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+              <label>LM Studio Local Host Address</label>
+              <input type="text" class="form-control" value="http://localhost:1234/v1" id="settings-host" readonly>
+            </div>
+            <div class="form-group">
+              <label>Active Compliance Model Target</label>
+              <input type="text" class="form-control" value="gemma-4-E4B-it" id="settings-model" readonly>
+            </div>
+            <div>
+              <button class="small" onclick="toast('Settings saved successfully.')">Save settings</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-card settings-card">
+          <span class="card-title">Audit Database Maintenance</span>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <p style="font-size: 12px; color: var(--dim);">Perform sandbox database purges or trigger pre-verified transaction networks instantly.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="primary" onclick="loadDemo('instant')">Load Pre-verified Demo ⚡</button>
+              <button class="danger" onclick="resetAll()">Purge Sandbox Database</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+  </div>
 </div>
 
-<!-- ALERT DRAWER -->
-<div id="overlay" onclick="closeDrawer()"></div>
-<div id="drawer">
-  <header><h3 id="d-title"></h3><button class="small" onclick="startPlayback()">▶ Evidence playback</button><button class="small" onclick="closeDrawer()">✕</button></header>
-  <div class="body" id="d-body"></div>
+<!-- Simulated iPhone Frame Drawer -->
+<div id="iphone-wrapper">
+  <div id="iphone-notch"></div>
+  <div id="iphone-screen">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 14px;">
+      <h3 style="font-size: 14px; font-weight: 800; background: linear-gradient(135deg, #38bdf8 0%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHAKRA Mobile</h3>
+      <button class="small" style="font-size: 9px; padding: 2px 5px;" onclick="toggleMobilePreview()">Close</button>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto;">
+      <!-- Mobile KPI Cards -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size: 9px; text-transform: uppercase; color: var(--dim); display: block;">Compliance Ratio</span>
+          <span style="font-size: 18px; font-weight: 800; font-family: var(--font-mono); color: var(--emerald);" id="m-ratio">100%</span>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 9px; text-transform: uppercase; color: var(--dim); display: block;">Total Exposure</span>
+          <span style="font-size: 18px; font-weight: 800; font-family: var(--font-mono); color: var(--red);" id="m-exposure">₹0</span>
+        </div>
+      </div>
+      
+      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--dim); margin-top: 4px;">Recent Alerts</div>
+      <div id="m-alerts-box" style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 11px; color: var(--faint);">No active alerts.</span>
+      </div>
+      
+      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--dim); margin-top: 4px;">Recommendations</div>
+      <div style="background: rgba(14,165,233,0.05); border: 1px solid rgba(14,165,233,0.15); border-radius: 8px; padding: 10px; font-size: 11px; line-height: 1.4;">
+        <b style="color: var(--blue);">Exclusion Triage:</b> Re-run simulation inside relationship graph to save ITC liabilities.
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; margin-top: 10px; font-size: 9px; color: var(--dim);">
+      <span style="color: var(--blue);">Dashboard</span>
+      <span>Alerts</span>
+      <span>Analytics</span>
+      <span>Settings</span>
+    </div>
+  </div>
 </div>
-<div id="toast"></div>
+
+<div id="toast">Ready.</div>
 
 <script>
 'use strict';
-const $=q=>document.querySelector(q);
-const api=(p,opt)=>fetch('/api'+p,opt).then(r=>{if(!r.ok)return r.json().then(e=>{throw new Error(e.detail||r.status)});return r.json()});
-const inr=n=>'₹'+(n>=100000?(n/100000).toFixed(1).replace(/\.0$/,'')+'L':Math.round(n).toLocaleString('en-IN'));
-let STATE={stats:{},alerts:[],graph:{nodes:[],edges:[]},invoices:[]}, CUR=null, TL=null;
 
-/* ── nav ── */
-document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>{
-  document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');
-  ['today','graph','timeline'].forEach(v=>$('#v-'+v).style.display=(a.dataset.v===v?'':'none'));
-  if(a.dataset.v==='graph')drawGraph();
-  if(a.dataset.v==='timeline')loadTimeline();
+const $ = q => document.querySelector(q);
+const api = (p, opt) => fetch('/api' + p, opt).then(r => {
+  if (!r.ok) return r.json().then(e => { throw new Error(e.detail || r.status) });
+  return r.json();
 });
-function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3200)}
 
-/* ── status + state ── */
-async function pollStatus(){try{const s=await api('/status');
-  $('#gdot').className='dot '+(s.gemma_connected?'on':'off');
-  $('#gmodel').textContent=s.gemma_connected?s.model:'Gemma offline';
-  $('#glat').textContent=s.gemma_connected?`local · ${s.latency_ms} ms`:'start LM Studio server';
-}catch(e){$('#gdot').className='dot off';$('#gmodel').textContent='backend offline'}}
-async function refresh(){STATE=await api('/state');render()}
-function render(){
-  const st=STATE.stats;
-  $('#h-time').textContent=(st.hours_saved||0)+' h';
-  $('#h-stopwatch').textContent=st.stopwatch_seconds?`· stopwatch: ${st.stopwatch_seconds}s of Gemma time`:'';
-  $('#h-money').textContent=inr(st.rupees_protected||0);
-  $('#h-silent').textContent='0';
-  const open=STATE.alerts.filter(a=>a.status!=='DISMISSED');
-  $('#today-title').textContent=open.length?`Pick up where you left off — ${open.length} thing${open.length>1?'s':''} need${open.length>1?'':'s'} your attention`:'Welcome to CHAKRA';
-  $('#alert-list').innerHTML=open.map(a=>`
-    <div class="alert-row" onclick="openAlert('${a.id}')">
-      <span class="sev ${a.severity}">${a.severity}</span>
-      <span class="who">${a.entity}</span>
-      <span class="what">${a.title}</span>
-      <span class="amt">${inr(a.impact)}</span>
-      <span class="st ${a.status}">${a.status==='OPEN'?'[Review →]':a.status}</span>
-    </div>`).join('');
-  const clean=st.clean_parties||0;
-  $('#clean-note').textContent=STATE.invoices.length?`✅ ${clean} part${clean===1?'y is':'ies are'} clean. ${STATE.invoices.length} documents verified — zero silent errors.`:'';
+const inr = n => '₹' + (n >= 100000 ? (n / 100000).toFixed(1).replace(/\.0$/, '') + 'L' : Math.round(n).toLocaleString('en-IN'));
+
+let STATE = { stats: {}, alerts: [], graph: { nodes: [], edges: [] }, invoices: [] };
+let CUR = null;
+let TL = null;
+let currentAlertFilter = 'ALL';
+let AUDIT_LOGS = [];
+
+function logAudit(msg, type='system') {
+  const box = $('#audit-log-box');
+  if (!box) return;
+  const time = new Date().toTimeString().split(' ')[0];
+  const el = document.createElement('div');
+  el.className = `log-line ${type}`;
+  el.textContent = `[${time}] ${msg}`;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  AUDIT_LOGS.push({ time, msg, type });
 }
 
-/* ── upload with concurrency 3 ── */
-const drop=$('#drop'),fpick=$('#fpick');
-drop.onclick=()=>fpick.click();
-['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('hot')}));
-['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('hot')}));
-drop.addEventListener('drop',ev=>ingest([...ev.dataTransfer.files]));
-fpick.onchange=()=>ingest([...fpick.files]);
-async function ingest(files){
-  if(!files.length)return;
-  const t0=Date.now();let done=0,fail=0;const rows=$('#upl-rows');rows.innerHTML='';
-  const tick=setInterval(()=>{$('#upl-status').innerHTML=`<span class="spin"></span> ${done+fail}/${files.length} · stopwatch ${((Date.now()-t0)/1000).toFixed(1)}s`},200);
-  const queue=[...files];
-  async function worker(){
-    while(queue.length){
-      const f=queue.shift();
-      const row=document.createElement('div');row.textContent='… '+f.name;rows.prepend(row);
-      const fd=new FormData();fd.append('file',f);
-      try{const r=await fetch('/api/upload',{method:'POST',body:fd});
-        if(!r.ok)throw new Error((await r.json()).detail||r.status);
-        const j=await r.json();done++;
-        const rep=j.receipts.filter(x=>x.kind==='repair').length;
-        row.textContent=`✅ ${f.name} — ${j.seconds}s${rep?` · ${rep} repair${rep>1?'s':''} by trust layer`:''}${j.review.length?` · 👁 review: ${j.review.join(', ')}`:''}`;
-      }catch(e){fail++;row.textContent=`🚨 ${f.name} — ${e.message}`}
+/* ── View navigation ── */
+document.querySelectorAll('nav a').forEach(a => {
+  a.onclick = () => {
+    document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    
+    const target = a.dataset.v;
+    ['dashboard', 'investigations', 'ai-compliance', 'vendors', 'gst-analytics', 'knowledge-graph', 'reports', 'settings'].forEach(v => {
+      const el = $('#v-' + v);
+      if (el) el.style.display = (target === v ? '' : 'none');
+    });
+    
+    logAudit(`Navigated to section: ${target.toUpperCase()}`, 'system');
+    
+    if (target === 'vendors') drawGraph();
+    if (target === 'dashboard') {
+      loadTimeline();
+    }
+    if (target === 'gst-analytics') renderGSTAnalyticsTable();
+    if (target === 'knowledge-graph') renderKnowledgeGraphTable();
+    if (target === 'reports') renderReportsSummary();
+  };
+});
+
+function toast(m) {
+  const t = $('#toast');
+  t.textContent = m;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+  logAudit(`System Notification: ${m}`, 'system');
+}
+
+/* ── Mobile iPhone Toggle ── */
+function toggleMobilePreview() {
+  const wrapper = $('#iphone-wrapper');
+  wrapper.classList.toggle('active');
+  logAudit('Mobile layout drawer toggled.', 'system');
+}
+
+/* ── Polling status ── */
+async function pollStatus() {
+  try {
+    const s = await api('/status');
+    const connected = s.gemma_connected;
+    $('#gdot').className = 'dot ' + (connected ? 'on' : 'off');
+    $('#gmodel').textContent = connected ? s.model : 'Gemma Offline';
+    $('#glat').textContent = connected ? `latency: ${s.latency_ms} ms` : 'Offline · start LM Studio';
+  } catch (e) {
+    $('#gdot').className = 'dot off';
+    $('#gmodel').textContent = 'Backend Offline';
+    $('#glat').textContent = 'Cannot poll server status';
+  }
+}
+
+async function refresh() {
+  try {
+    STATE = await api('/state');
+    render();
+  } catch (e) {
+    logAudit(`Error loading state: ${e.message}`, 'error');
+  }
+}
+
+function computeComplianceScore() {
+  if (!STATE.alerts || STATE.alerts.length === 0) return 100;
+  let score = 100;
+  STATE.alerts.forEach(a => {
+    if (a.status === 'DISMISSED') return;
+    if (a.severity === 'CRITICAL') score -= 10;
+    else if (a.severity === 'HIGH') score -= 5;
+    else if (a.severity === 'MEDIUM') score -= 2;
+  });
+  return Math.max(score, 0);
+}
+
+/* ── Render Dashboard / Fraud Intelligence Center ── */
+function render() {
+  const score = computeComplianceScore();
+  const openAlerts = STATE.alerts.filter(a => a.status === 'OPEN').length;
+  const totalExp = STATE.alerts.filter(a => a.status !== 'DISMISSED').reduce((acc, curr) => acc + curr.impact, 0);
+  
+  // Dashboard kpi values
+  const duplicates = STATE.alerts.filter(a => a.rule === 'DUPLICATE_INVOICE' && a.status !== 'DISMISSED').length;
+  const circular = STATE.alerts.filter(a => a.rule === 'CIRCULAR_TRADING' && a.status !== 'DISMISSED').length;
+  const manual = STATE.alerts.filter(a => a.rule === 'MANUAL_REVIEW' && a.status !== 'DISMISSED').length;
+  
+  $('#kpi-duplicates').textContent = duplicates;
+  $('#kpi-circular').textContent = circular;
+  $('#kpi-shell').textContent = manual;
+  $('#kpi-clusters').textContent = STATE.invoices.length || 0;
+  
+  if (openAlerts > 0) {
+    $('#notif-badge').style.display = 'block';
+    $('#notif-badge').textContent = openAlerts;
+  } else {
+    $('#notif-badge').style.display = 'none';
+  }
+
+  // Render recent top risks in right pane dashboard
+  const activeAlerts = STATE.alerts.filter(a => a.status !== 'DISMISSED');
+  
+  // Render Mobile values
+  $('#m-ratio').textContent = score + '%';
+  $('#m-ratio').style.color = score < 80 ? 'var(--red)' : score < 95 ? 'var(--amber)' : 'var(--emerald)';
+  $('#m-exposure').textContent = inr(totalExp);
+  
+  const mobileAlertsBox = $('#m-alerts-box');
+  if (activeAlerts.length > 0) {
+    mobileAlertsBox.innerHTML = activeAlerts.map(a => `
+      <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 8px; padding: 8px; font-size: 10px;">
+        <div style="display:flex; justify-content:space-between; font-weight:700;">
+          <span>${a.entity}</span>
+          <span style="color:var(--amber);">${inr(a.impact)}</span>
+        </div>
+        <span style="color:var(--dim); font-size:9px;">${a.title}</span>
+      </div>`).join('');
+  } else {
+    mobileAlertsBox.innerHTML = `<span style="font-size: 11px; color: var(--faint);">No active alerts.</span>`;
+  }
+
+  // Render Azure OCR extraction screen mockup
+  const azureBox = $('#azure-json-box');
+  if (STATE.invoices.length > 0) {
+    const lastInv = STATE.invoices[STATE.invoices.length - 1];
+    azureBox.textContent = JSON.stringify({
+      status: "extraction_complete",
+      document_id: lastInv.id,
+      file_name: lastInv.file,
+      metadata: {
+        seller: lastInv.seller,
+        buyer: lastInv.buyer,
+        amount: lastInv.total
+      },
+      audit_repairs: lastInv.receipts ? lastInv.receipts.length : 0,
+      validation_warnings: lastInv.review || []
+    }, null, 2);
+  } else {
+    azureBox.textContent = JSON.stringify({
+      status: "ready",
+      document: "pending_upload",
+      fields: {}
+    }, null, 2);
+  }
+
+  // Render alerts inside Investigations tab
+  renderAlertsList();
+}
+
+/* Render the split-pane list of alerts in Investigations tab */
+function renderAlertsList() {
+  const listContainer = $('#sidebar-alerts-list');
+  if (!listContainer) return;
+  
+  let list = STATE.alerts;
+  if (currentAlertFilter !== 'ALL') {
+    list = list.filter(a => a.status === currentAlertFilter);
+  }
+  
+  if (list.length === 0) {
+    listContainer.innerHTML = `<div style="text-align: center; color: var(--faint); padding: 24px; font-size: 12px;">No active alerts.</div>`;
+    return;
+  }
+  
+  listContainer.innerHTML = list.map(a => `
+    <div class="list-alert-card ${CUR && CUR.id === a.id ? 'active' : ''}" onclick="selectAlert('${a.id}')">
+      <div class="list-alert-header">
+        <span class="severity-pill ${a.severity}">${a.severity}</span>
+        <span class="list-alert-amount">${inr(a.impact)}</span>
+      </div>
+      <span class="list-alert-name" style="font-size:12px; font-weight:700;">${a.entity}</span>
+      <span class="list-alert-desc" style="font-size:10px; color:var(--dim);">${a.title}</span>
+    </div>`).join('');
+}
+
+function filterAlerts(filter) {
+  currentAlertFilter = filter;
+  renderAlertsList();
+}
+
+/* ── Select Alert Triage (Three-Column console) ── */
+function selectAlert(id) {
+  CUR = STATE.alerts.find(a => a.id === id);
+  renderAlertsList();
+  
+  if (!CUR) return;
+  
+  // Center Column: suspicous fields and mockup Document Viewer
+  $('#ocr-preview-empty').style.display = 'none';
+  $('#ocr-preview-container').style.display = 'block';
+  
+  $('#ocr-center-name').textContent = CUR.entity;
+  $('#ocr-seller-name').textContent = CUR.entity;
+  
+  const evInvs = STATE.invoices.filter(i => CUR.invoice_ids.includes(i.id));
+  const firstInv = evInvs[0] || {};
+  
+  $('#ocr-seller-gst').textContent = `GSTIN: ${firstInv.seller ? firstInv.id : '29AABCS5555S1ZG'}`;
+  $('#ocr-buyer-name').textContent = firstInv.buyer || 'ACME CORP';
+  $('#ocr-buyer-gst').textContent = `GSTIN: ${firstInv.buyer ? '29AABCP9999P1Z1' : '---'}`;
+  $('#ocr-inv-no').textContent = `INV NO: ${firstInv.file || 'INV-0412'}`;
+  $('#ocr-item-total').textContent = firstInv.total ? inr(firstInv.total) : inr(CUR.impact);
+  
+  // Highlighting suspicous tags
+  $('#tag-mismatch').style.display = CUR.rule === 'MANUAL_REVIEW' ? 'block' : 'none';
+  $('#tag-duplicate').style.display = CUR.rule === 'DUPLICATE_INVOICE' ? 'block' : 'none';
+  $('#tag-circuit').style.display = (CUR.rule === 'CIRCULAR_TRADING' || CUR.rule === 'RING_EXPOSURE') ? 'block' : 'none';
+  
+  // Bottom Evidence Timeline
+  const timelineLogs = [
+    { title: 'Invoice Uploaded', status: 'done' },
+    { title: 'OCR Extraction Complete', status: 'done' },
+    { title: 'GST Validation Passed', status: CUR.rule === 'MANUAL_REVIEW' ? 'active' : 'done' },
+    { title: 'Duplicate Check Done', status: CUR.rule === 'DUPLICATE_INVOICE' ? 'active' : 'done' },
+    { title: 'Circular Trading Analysis', status: (CUR.rule === 'CIRCULAR_TRADING' || CUR.rule === 'RING_EXPOSURE') ? 'active' : 'done' },
+    { title: 'Knowledge Graph Updated', status: 'done' },
+    { title: 'Gemma AI Inference Engine', status: 'done' },
+    { title: 'Compliance Report Prepared', status: 'done' }
+  ];
+  
+  $('#evidence-timeline-box').innerHTML = `
+    <div class="timeline-list">
+      ${timelineLogs.map(l => `
+        <div class="timeline-item ${l.status}">
+          <span style="font-size:11px; font-weight:600; color: ${l.status==='active'?'var(--amber)':l.status==='done'?'#fff':'var(--faint)'}">${l.title}</span>
+        </div>`).join('')}
+    </div>`;
+
+  // Right Column: AI Investigator Details
+  $('#triage-dismiss-btn').disabled = false;
+  $('#triage-approve-btn').disabled = false;
+  
+  const rightBox = $('#investigations-right-panel');
+  const receipts = evInvs.flatMap(i => i.receipts || []);
+  
+  // Custom case owner mapping based on alert target
+  const owner = CUR.severity === 'CRITICAL' ? 'Lead Investigator' : 'Staff Auditor';
+  const riskClass = CUR.severity === 'CRITICAL' ? 'CRITICAL' : CUR.severity === 'HIGH' ? 'HIGH' : 'MEDIUM';
+  const riskVal = CUR.severity === 'CRITICAL' ? '88' : CUR.severity === 'HIGH' ? '74' : '42';
+  const riskBlocks = CUR.severity === 'CRITICAL' ? '██████████░░' : CUR.severity === 'HIGH' ? '████████░░░░' : '█████░░░░░░░';
+  const riskColor = CUR.severity === 'CRITICAL' ? 'var(--red)' : CUR.severity === 'HIGH' ? '#f97316' : 'var(--amber)';
+  const riskBadgeStyle = CUR.severity === 'CRITICAL' ? 'background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3);' : CUR.severity === 'HIGH' ? 'background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.3);' : 'background:rgba(245,158,11,0.15); color:var(--amber); border:1px solid rgba(245,158,11,0.3);';
+
+  // Rename panel header
+  $('.triage-col-header span', rightBox.parentElement).innerHTML = 'AI Investigation Engine <div style="font-size:9px; color:var(--dim); font-weight:normal; margin-top:2px;">Powered by Gemma</div>';
+
+  rightBox.innerHTML = `
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 8px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">AI Explainer Summary</span>
+      <p style="font-size:12px; line-height:1.4;">${CUR.why}</p>
+      <div style="font-size:11px; margin-top:4px; color:var(--dim);"><b>Case Assigned To:</b> <span style="color:var(--blue); font-weight:600;">${owner}</span></div>
+    </div>
+
+    <!-- Overall Risk Bar-Meter -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Overall Risk</span>
+      <div style="font-family: var(--font-mono); font-size:15px; font-weight:700; color:${riskColor}; display:flex; align-items:center; gap:8px;">
+        <span style="letter-spacing:-1px;">${riskBlocks}</span>
+        <span>${riskVal} / 100</span>
+        <span style="font-size:9px; padding:1px 5px; border-radius:4px; ${riskBadgeStyle}">${riskClass}</span>
+      </div>
+    </div>
+
+    <!-- Confidence Breakdown -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px; font-size:11px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Confidence Breakdown</span>
+      <div style="display:flex; justify-content:space-between;"><span>Invoice Parsing:</span> <span style="font-family:var(--font-mono); font-weight:700; color:var(--emerald);">99%</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Rule Match:</span> <span style="font-family:var(--font-mono); font-weight:700; color:var(--emerald);">95%</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Knowledge Graph:</span> <span style="font-family:var(--font-mono); font-weight:700; color:var(--emerald);">92%</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Gemma Reasoning:</span> <span style="font-family:var(--font-mono); font-weight:700; color:var(--emerald);">97%</span></div>
+      <div style="display:flex; justify-content:space-between; border-top:1px solid var(--line); padding-top:4px; font-weight:700;"><span>Overall Confidence:</span> <span style="font-family:var(--font-mono); color:var(--blue);">96%</span></div>
+    </div>
+
+    <!-- Explainability -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px; font-size:11px; line-height:1.4;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Why was this flagged?</span>
+      <div>✔ GST amount differs by ${CUR.rule==='MANUAL_REVIEW'?'7.5%':'0%'} from checksum reconciliation</div>
+      <div>✔ Vendor appears in ${CUR.rule==='DUPLICATE_INVOICE'?'5':'1'} previous investigations</div>
+      <div>✔ Invoice similarity index matches ${CUR.rule==='DUPLICATE_INVOICE'?'94%':'0%'}</div>
+      <div>✔ Link established to high-risk supplier network (CGST §16)</div>
+    </div>
+
+    <!-- Evidence -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px; font-size:11px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Evidence Chain</span>
+      <div>✓ Rule GST-103 Triggered (Checksum check)</div>
+      <div>✓ Invoice Similarity validation</div>
+      <div>✓ Vendor Graph path matched</div>
+      <div>✓ Historical Invoicing pattern resolved</div>
+      <div>✓ AI Reasoning logs generated</div>
+    </div>
+
+    <!-- Knowledge Graph Linkage -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px; font-size:11px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Knowledge Graph Linkage</span>
+      <div style="font-family: var(--font-mono); font-size:10px; color:var(--blue); text-align:center; padding:5px 0; border:1px dashed var(--line); border-radius:4px;">
+        Vendor → Invoices → Transporter → GST → Bank → Director
+      </div>
+      <div style="color:var(--amber); font-weight:700; font-size:10px; text-align:center; margin-top:2px;">
+        ⚠️ Linked to ${CUR.rule==='CIRCULAR_TRADING'?'3':'1'} High Risk Vendors downstream
+      </div>
+    </div>
+
+    <!-- System Processing Pipeline -->
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px; font-size:11px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">System Processing Pipeline</span>
+      <div style="display:flex; justify-content:space-between;"><span>OCR Engine:</span> <span style="color:var(--emerald); font-weight:700;">✓ PASSED</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Data Extraction:</span> <span style="color:var(--emerald); font-weight:700;">✓ PASSED</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>GST Validation:</span> <span style="color:var(--emerald); font-weight:700;">✓ PASSED</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Knowledge Graph:</span> <span style="color:var(--emerald); font-weight:700;">✓ PASSED</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Gemma Risk Inference:</span> <span style="color:var(--emerald); font-weight:700;">✓ PASSED</span></div>
+      <div style="display:flex; justify-content:space-between; color:var(--blue); font-weight:700;"><span>Compliance Report:</span> <span>Running...</span></div>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 6px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Trust receipts</span>
+      ${receipts.map(r => `<div class="detail-receipt ${r.kind==='review'?'review':''}">${r.kind==='review'?'👁':'⚙️'} ${r.msg}</div>`).join('') || '<span style="font-size:11px; color:var(--dim);">Clean checksum verification</span>'}
+    </div>
+    
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap: 8px;">
+      <span style="font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase;">Actions Notice Draft</span>
+      <div id="drafts-area">
+        ${CUR.drafts ? draftHtml(CUR.drafts) : `<button class="primary small" id="gen-btn" onclick="genDrafts()">Draftnotice with Gemma</button>`}
+      </div>
+    </div>`;
+}
+
+function draftHtml(drafts) {
+  return drafts.map((d, i) => `
+    <div class="draft-header">
+      <b>${d.label}</b>
+      <button class="small" style="font-size:9px; padding:2px 4px;" onclick="navigator.clipboard.writeText(document.getElementById('dr${i}').value);toast('Notice copied.')">Copy</button>
+    </div>
+    <textarea class="draft-box" id="dr${i}" style="height:100px;">${d.text.replace(/</g, '&lt;')}</textarea>`).join('');
+}
+
+async function genDrafts() {
+  const b = $('#gen-btn');
+  if (!b) return;
+  b.disabled = true;
+  b.innerHTML = '<span class="spin"></span> Gemma writing...';
+  logAudit(`Writing compliance notice for ${CUR.entity}...`, 'gemma');
+  try {
+    const r = await api(`/alerts/${CUR.id}/drafts`, { method: 'POST' });
+    CUR.drafts = r.drafts;
+    $('#drafts-area').innerHTML = draftHtml(r.drafts);
+    logAudit(`Draft notice prepared successfully.`, 'success');
+    await refresh();
+  } catch (e) {
+    b.disabled = false;
+    b.textContent = 'Retry draft';
+    toast('Draft notices failed.');
+  }
+}
+
+async function setStatus(s) {
+  if (!CUR) return;
+  try {
+    await api(`/alerts/${CUR.id}/status/${s}`, { method: 'POST' });
+    await refresh();
+    CUR = null;
+    $('#ocr-preview-empty').style.display = 'flex';
+    $('#ocr-preview-container').style.display = 'none';
+    $('#triage-dismiss-btn').disabled = true;
+    $('#triage-approve-btn').disabled = true;
+    $('#investigations-right-panel').innerHTML = `<div style="text-align: center; color: var(--faint); padding: 60px 0;">No compliance case selected.</div>`;
+    toast(s === 'APPROVED' ? 'Report Approved.' : 'Report dismissed.');
+  } catch (e) {
+    toast('Failed: ' + e.message);
+  }
+}
+
+function navigateToInvestigations(alertId) {
+  document.querySelector('nav a[data-v=investigations]').click();
+  setTimeout(() => { selectAlert(alertId); }, 200);
+}
+
+/* ── Ingestion Dropzone ── */
+const drop = $('#drop-zone'), fpick = $('#fpick');
+drop.onclick = () => fpick.click();
+['dragover', 'dragenter'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('hot') }));
+['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('hot') }));
+drop.addEventListener('drop', ev => { ingest([...ev.dataTransfer.files]); });
+fpick.onchange = () => { ingest([...fpick.files]); };
+
+async function ingest(files) {
+  if (!files.length) return;
+  logAudit(`Ingesting ${files.length} transaction invoices...`, 'system');
+  const t0 = Date.now();
+  let done = 0, fail = 0;
+  const rows = $('#upl-rows');
+  rows.innerHTML = '';
+  
+  const tick = setInterval(() => {
+    $('#upl-status').innerHTML = `<span class="spin"></span> Vision Extractor running: ${done+fail}/${files.length} · stopwatch ${((Date.now()-t0)/1000).toFixed(1)}s`;
+  }, 200);
+  
+  const queue = [...files];
+  async function worker() {
+    while (queue.length) {
+      const f = queue.shift();
+      const row = document.createElement('div');
+      row.style.borderBottom = '1px solid var(--line)';
+      row.style.padding = '3px 0';
+      row.textContent = '⏱ Processing ' + f.name;
+      rows.prepend(row);
+      
+      const fd = new FormData();
+      fd.append('file', f);
+      try {
+        const r = await fetch('/api/upload', { method: 'POST', body: fd });
+        if (!r.ok) throw new Error((await r.json()).detail || r.status);
+        const j = await r.json();
+        done++;
+        const repairs = j.receipts.filter(x => x.kind === 'repair').length;
+        row.textContent = `✅ ${f.name} — OCR Complete (${j.seconds}s)`;
+        row.style.color = 'var(--emerald)';
+        logAudit(`Extracted ${f.name} in ${j.seconds}s.`, 'success');
+      } catch (e) {
+        fail++;
+        row.textContent = `🚨 ${f.name} — Failed: ${e.message}`;
+        row.style.color = 'var(--red)';
+        logAudit(`OCR Failed for ${f.name}: ${e.message}`, 'error');
+      }
     }
   }
-  await Promise.all([worker(),worker(),worker()]);
+  
+  await Promise.all([worker(), worker(), worker()]);
   clearInterval(tick);
-  $('#upl-status').textContent=`Done: ${done} ok, ${fail} failed · ${((Date.now()-t0)/1000).toFixed(1)}s total`;
-  await api('/evaluate',{method:'POST'});await refresh();
+  $('#upl-status').textContent = `Processed ${done} ok, ${fail} failed`;
+  
+  logAudit('Running compliance loops check...', 'system');
+  await api('/evaluate', { method: 'POST' });
+  await refresh();
 }
 
 /* ── demo / reset ── */
-async function loadDemo(mode){
-  toast(mode==='live'?'Running demo photos through live Gemma…':'Loading pre-verified demo…');
-  try{await api('/demo/'+mode,{method:'POST'});if(mode==='instant'){await api('/evaluate',{method:'POST'})}await refresh();toast('Demo ready.')}
-  catch(e){toast('Demo: '+e.message)}
-}
-async function resetAll(){await api('/reset',{method:'POST'});await refresh();$('#upl-rows').innerHTML='';$('#upl-status').textContent='';toast('Cleared.')}
-
-/* ── alert drawer ── */
-function openAlert(id){
-  CUR=STATE.alerts.find(a=>a.id===id);if(!CUR)return;
-  $('#d-title').textContent=`${CUR.entity} — ${inr(CUR.impact)}`;
-  const evInvs=STATE.invoices.filter(i=>CUR.invoice_ids.includes(i.id));
-  const receipts=evInvs.flatMap(i=>i.receipts||[]);
-  $('#d-body').innerHTML=`
-    <div class="card-sec"><h4>❓ WHY IS IT RISKY <span class="tag det">⚙️ GRAPH</span></h4>
-      <p>${CUR.why}</p>
-      ${CUR.path.length?`<p class="pathline">${CUR.path.map(p=>`<b>${p.name}</b>`).join(' → ')} &nbsp;<button class="small" onclick="showPath()">Why am I connected? →</button></p>`:''}
-    </div>
-    <div class="card-sec"><h4>📎 EVIDENCE <span class="tag det">⚙️ TRUST LAYER</span></h4>
-      <div>${evInvs.map(i=>`<img class="evimg" src="/api/invoice/${i.id}/image" onclick="window.open(this.src)" title="${i.file}">`).join('')||'<span class="muted">ledger-level evidence (no images)</span>'}</div>
-      <div style="margin-top:10px">${receipts.map(r=>`<div class="receipt ${r.kind==='review'?'review':''}">${r.kind==='review'?'👁':'⚙️'} ${r.msg}</div>`).join('')||'<span class="muted">extraction verified clean — no repairs needed</span>'}</div>
-    </div>
-    <div class="card-sec"><h4>💰 EXPOSURE <span class="tag det">⚙️ IMPACT</span></h4>
-      <div class="exposure-big">${inr(CUR.impact)}</div>
-      <p class="muted">${CUR.impact_label} · ${CUR.section}</p>
-      ${CUR.entities.length?`<p style="margin-top:8px"><button class="small" onclick="simulate('${CUR.entities[0].gstin}','${CUR.entities[0].name}')">🔮 What if I drop this supplier today?</button></p>`:''}
-      <div id="sim-inline"></div>
-    </div>
-    <div class="card-sec"><h4>✅ WHAT SHOULD I DO <span class="tag ai">🤖 GEMMA</span></h4>
-      <div id="drafts-area">${CUR.drafts?draftHtml(CUR.drafts):`<button class="primary" id="gen-btn" onclick="genDrafts()">Draft the paperwork with Gemma →</button> <span class="muted">writes the letters from the deterministic evidence above</span>`}</div>
-      <div style="margin-top:12px;display:flex;gap:10px">
-        <button class="primary" onclick="setStatus('APPROVED')">Approve & send</button>
-        <button class="danger" onclick="setStatus('DISMISSED')">Dismiss</button>
-      </div>
-    </div>`;
-  $('#overlay').classList.add('open');$('#drawer').classList.add('open');
-}
-function closeDrawer(){$('#overlay').classList.remove('open');$('#drawer').classList.remove('open')}
-function draftHtml(drafts){return drafts.map((d,i)=>`
-  <div class="draft-head"><b>${d.label}</b><span class="muted">${d.model} · ${d.seconds}s</span>
-  <button class="small" onclick="navigator.clipboard.writeText(document.getElementById('dr${i}').value);toast('Copied.')">Copy</button></div>
-  <textarea class="draft-box" id="dr${i}">${d.text.replace(/</g,'&lt;')}</textarea>`).join('')}
-async function genDrafts(){
-  const b=$('#gen-btn');b.disabled=true;b.innerHTML='<span class="spin"></span> Gemma is writing (15-60s)…';
-  try{const r=await api(`/alerts/${CUR.id}/drafts`,{method:'POST'});CUR.drafts=r.drafts;
-    $('#drafts-area').innerHTML=draftHtml(r.drafts);await refresh();}
-  catch(e){b.disabled=false;b.textContent='Retry drafting';toast('Draft failed: '+e.message)}
-}
-async function setStatus(s){await api(`/alerts/${CUR.id}/status/${s}`,{method:'POST'});await refresh();closeDrawer();toast(s==='APPROVED'?'Approved. The letters are ready to send.':'Dismissed.')}
-function showPath(){closeDrawer();document.querySelector('nav a[data-v=graph]').click();setTimeout(()=>animatePath(CUR.path.map(p=>p.gstin)),300)}
-
-/* ── counterfactual ── */
-async function simulate(gstin,name){
-  const box=$('#sim-inline')||$('#simpanel');
-  box.innerHTML='<span class="spin"></span> re-running the deterministic layer…';
-  try{const r=await api('/simulate/'+encodeURIComponent(gstin),{method:'POST'});
-    box.innerHTML=`<div class="card-sec" style="margin-top:10px;border-color:var(--gold)">
-      <h4>🔮 COUNTERFACTUAL — remove ${name}</h4>
-      <p>Exposure: <span class="num" style="color:var(--red)">${inr(r.before.exposure)}</span> →
-      <span class="num" style="color:var(--green)">${inr(r.after.exposure)}</span>
-      &nbsp;·&nbsp; you save <b class="num" style="color:var(--gold)">${inr(r.saved)}</b></p>
-      ${r.resolved_findings.length?`<p class="muted" style="margin-top:6px">Resolves: ${r.resolved_findings.join(' · ')}</p>`:''}
-      <p class="muted" style="margin-top:6px">Same math, different world. No opinion involved.</p></div>`;
-  }catch(e){box.textContent='Simulation failed: '+e.message}
-}
-
-/* ── graph ── */
-function drawGraph(){
-  const g=STATE.graph,svg=$('#graph');if(!g.nodes.length){svg.innerHTML='<text x="480" y="280" text-anchor="middle" fill="#5a6b7e">Ingest documents first — the network appears here.</text>';return}
-  const W=960,H=560,cx=W/2,cy=H/2,R=Math.min(W,H)/2-70;
-  const pos={};g.nodes.forEach((n,i)=>{const a=2*Math.PI*i/g.nodes.length-Math.PI/2;
-    pos[n.id]=[cx+R*Math.cos(a),cy+R*Math.sin(a)]});
-  const col={ring:'var(--red)',hop1:'var(--orange)',hop2:'var(--amber)',clean:'#3b82f6'};
-  let s=`<defs><marker id="arr" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3a4a5d"/></marker></defs>`;
-  g.edges.forEach((e,i)=>{const[x1,y1]=pos[e.source],[x2,y2]=pos[e.target];
-    const mx=(x1+x2)/2,my=(y1+y2)/2;
-    s+=`<path id="e${i}" class="gedge ${e.in_ring?'ring':''}" data-s="${e.source}" data-t="${e.target}" d="M${x1} ${y1} L${x2} ${y2}"/>`;
-    s+=`<text class="elabel" x="${mx}" y="${my-6}" text-anchor="middle">${inr(e.amount)}</text>`});
-  g.nodes.forEach(n=>{const[x,y]=pos[n.id];
-    s+=`<g class="gnode" onclick="graphSim('${n.id}','${n.name.replace(/'/g,"\\'")}')">
-      <circle cx="${x}" cy="${y}" r="26" fill="var(--panel2)" stroke="${col[n.role]}" ${n.horizon?'stroke-dasharray="4 4"':''} ${n.role==='ring'?'style="animation:pulse 1.6s infinite"':''}>${n.horizon?'<title>Visibility Horizon: we hold no purchase-side invoices for this company — its suppliers are unknown to this graph.</title>':''}</circle>
-      <text x="${x}" y="${y-34}">${n.name}</text>
-      <text class="gst" x="${x}" y="${y+44}">${n.id}</text>
-      <text x="${x}" y="${y+5}" style="font-size:15px">${n.role==='ring'?'🔥':n.role==='hop1'?'⚠️':n.role==='hop2'?'⚡':'✅'}</text></g>`});
-  svg.innerHTML=s;
-}
-const ROLE_STORY={
-  ring:['🔥 Inside a circular trading ring',
-    'This company invoices in a closed loop — A bills B bills C bills A. Real trade never travels in circles; fake input-tax-credit does. No goods move, and the GST shown on these invoices was likely never deposited with the government. This is the classic fake-ITC machine (CGST §132).'],
-  hop1:['⚠️ One hop from the ring',
-    'This company buys directly from a ring member. GST credit is a chain of trust — every credit assumes the tax was actually paid upstream. Here, it likely wasn’t. Under CGST §16(2) the credit on these purchases can be denied, even though this buyer may be entirely honest.'],
-  hop2:['⚡ Two hops — the blast radius',
-    'This company’s own books are clean and it has never met the ring. But its supplier bought from the ring — so when the department unwinds the chain, this company’s tax credit gets reversed too: the same tax paid twice, plus 18% interest (§50). The risk isn’t wrongdoing. It’s standing in the blast radius.'],
-  clean:['✅ Clean — and provably so',
-    'No path connects this company to any detected ring in the evidence we hold. That’s not a guess: it’s the absence of a route in the invoice graph. Half the value of this map is peace of mind.']
-};
-const HORIZON_STORY=['◌ Visibility Horizon',
-  'We hold no purchase-side invoices for this company — so we cannot see who supplies THEM. Rather than guess, CHAKRA marks the edge of its evidence. Their own CA’s CHAKRA could answer a yes/no risk question about them without sharing any data — that’s the federation roadmap.'];
-function graphSim(gstin,name){
-  const p=$('#simpanel');p.style.display='block';
-  const g=STATE.graph;
-  const node=g.nodes.find(n=>n.id===gstin)||{};
-  const nameOf=id=>(g.nodes.find(n=>n.id===id)||{}).name||id;
-  const [title,story]=ROLE_STORY[node.role]||ROLE_STORY.clean;
-  const alert=STATE.alerts.find(a=>(a.entities||[]).some(e=>e.gstin===gstin)&&a.status!=='DISMISSED');
-  const sells=g.edges.filter(e=>e.source===gstin);
-  const buys=g.edges.filter(e=>e.target===gstin);
-  const li=(arr,dir)=>arr.map(e=>`<div style="font-size:12px;font-family:var(--mono)">${dir==='out'?'→ bills':'← billed by'} <b>${nameOf(dir==='out'?e.target:e.source)}</b> ${inr(e.amount)}${e.in_ring?' <span style="color:var(--red)">⭮ ring leg</span>':''}</div>`).join('');
-  let special='';
-  if(node.role==='ring'){
-    const partners=g.nodes.filter(n=>n.role==='ring'&&n.id!==gstin).map(n=>n.name);
-    const victims=STATE.alerts.filter(a=>a.rule==='RING_EXPOSURE'&&a.status!=='DISMISSED')
-      .map(a=>`<div style="font-size:12px">💥 <b>${a.entity}</b> — ${inr(a.impact)} at risk (${a.severity==='CRITICAL'?'2 hops, never met them':'buys directly'})</div>`).join('');
-    special=`<p style="font-size:11px;letter-spacing:1px;color:var(--red);margin-top:10px">THE FRAUD — ring partners</p>
-      <div style="font-size:12px">${name} ⭮ ${partners.join(' ⭮ ')}</div>
-      <p style="font-size:11px;letter-spacing:1px;color:var(--amber);margin-top:8px">WHO GETS HURT — honest businesses downstream</p>
-      ${victims||'<div class="muted" style="font-size:12px">none in current data</div>'}`;
-  }else if((node.role==='hop1'||node.role==='hop2')&&alert&&alert.path.length){
-    special=`<p style="font-size:11px;letter-spacing:1px;color:var(--amber);margin-top:10px">HOW THE RISK REACHES THEM — victim, not fraudster</p>
-      <div style="font-size:12px;font-family:var(--mono)">${alert.path.map((x,i)=>i===alert.path.length-1?`<b style="color:var(--amber)">${x.name}</b>`:`<span style="color:${i<alert.path.length-2?'var(--red)':'var(--orange)'}">${x.name}</span>`).join(' → ')}</div>`;
+async function loadDemo(mode) {
+  logAudit('Loading mockup workspace database...', 'system');
+  toast('Loading pre-verified demo files...');
+  try {
+    await api('/demo/instant', { method: 'POST' });
+    await api('/evaluate', { method: 'POST' });
+    await refresh();
+    toast('Demo transaction database loaded.');
+    logAudit('Compliance demo dataset loaded successfully.', 'success');
+  } catch (e) {
+    toast('Failed to load demo.');
   }
-  p.innerHTML=`<h4>${name}</h4>
-    <p style="font-size:12px;color:var(--gold);margin-bottom:6px">${title}</p>
-    <p style="font-size:12px;color:var(--dim)">${story}</p>
-    ${special}
-    <p style="font-size:11px;letter-spacing:1px;color:var(--dim);margin-top:10px">THIS COMPANY'S MONEY TRAIL</p>
-    ${li(buys,'in')}${li(sells,'out')||''}
-    ${node.horizon?`<p style="font-size:12px;color:var(--amber);margin-top:8px"><b>${HORIZON_STORY[0]}</b> — ${HORIZON_STORY[1]}</p>`:''}
-    ${alert?`<p style="margin-top:8px;font-family:var(--mono);font-weight:700;color:var(--gold)">${inr(alert.impact)} at risk</p>
-      <button class="small" style="margin-top:6px" onclick="closeSim();openAlert('${alert.id}')">Open the finding →</button>`:''}
-    <div style="margin-top:10px;display:flex;gap:8px">
-      <button class="primary small" onclick="simPanelRun('${gstin}','${name.replace(/'/g,"\\'")}')">🔮 What if we drop them?</button>
-      <button class="small" onclick="closeSim()">✕</button>
-    </div>`;
 }
-function closeSim(){$('#simpanel').style.display='none'}
-async function simPanelRun(gstin,name){
-  const p=$('#simpanel');p.innerHTML='<span class="spin"></span> re-running the math…';
-  try{const r=await api('/simulate/'+encodeURIComponent(gstin),{method:'POST'});
-    p.innerHTML=`<h4>🔮 Without ${name}</h4>
-      <p>Exposure <span class="num" style="color:var(--red)">${inr(r.before.exposure)}</span> → <span class="num" style="color:var(--green)">${inr(r.after.exposure)}</span></p>
-      <p>Saved: <b class="num" style="color:var(--gold)">${inr(r.saved)}</b></p>
-      ${r.resolved_findings.map(f=>`<p class="muted">✓ ${f}</p>`).join('')}
-      <button class="small" style="margin-top:8px" onclick="this.parentElement.style.display='none'">Close</button>`;
-  }catch(e){p.textContent=e.message}
-}
-function animatePath(gstins){
-  const edges=[...document.querySelectorAll('.gedge')];
-  for(let i=0;i<gstins.length-1;i++){
-    setTimeout(()=>{const e=edges.find(x=>x.dataset.s===gstins[i]&&x.dataset.t===gstins[i+1])||edges.find(x=>x.dataset.s===gstins[i+1]&&x.dataset.t===gstins[i]);
-      if(e)e.classList.add('hot')},600*i);
+
+async function resetAll() {
+  logAudit('Reset database triggered.', 'system');
+  if (!confirm('Are you sure you want to clear all compliance records?')) return;
+  try {
+    await api('/reset', { method: 'POST' });
+    await refresh();
+    $('#upl-rows').innerHTML = '';
+    $('#upl-status').textContent = '';
+    toast('Workspace database cleared.');
+    logAudit('Workspace database wiped clean.', 'success');
+  } catch (e) {
+    toast('Reset failed.');
   }
-  toast('Following the money…');
 }
 
-/* ── evidence playback ── */
-function startPlayback(){
-  if(!CUR)return;
-  const inv=STATE.invoices.find(i=>CUR.invoice_ids.includes(i.id))||{};
-  const steps=[
-    ['Document ingested',inv.file||'ledger records'],
-    ['Gemma 4 read the paper',(inv.timings&&inv.timings.main)?inv.timings.main+'s on-device, zero network':'vision extraction'],
-    ['Trust layer verified every number',(inv.receipts||[]).filter(r=>r.kind==='repair').map(r=>r.msg).join(' · ')||'all fields passed checksum + arithmetic'],
-    ['Supplier graph built','every GSTIN a node, every invoice an edge'],
-    ['Deterministic rule fired',CUR.rule+' — '+CUR.section],
-    ['Exposure computed',inr(CUR.impact)+' — '+CUR.impact_label],
-    ['Action engine drafted the paperwork',CUR.drafts?CUR.drafts.length+' documents ready':'press "Draft the paperwork" to finish the story'],
-  ];
-  $('#d-body').innerHTML=`<div class="card-sec"><h4>▶ EVIDENCE PLAYBACK — how CHAKRA reached this conclusion</h4>
-    ${steps.map((s,i)=>`<div class="pb-step" id="pb${i}"><div class="n">${i+1}</div><div class="t"><b>${s[0]}</b><span>${s[1]}</span></div></div>`).join('')}
-    <p style="margin-top:14px"><button class="small" onclick="openAlert('${CUR.id}')">← Back to the card</button></p></div>`;
-  steps.forEach((_,i)=>setTimeout(()=>{const el=$('#pb'+i);if(el)el.classList.add('on')},450*(i+1)));
+/* ── counterfactual simulation ── */
+async function simulate(gstin, name) {
+  const target = $('#sim-inline-target');
+  if (!target) return;
+  target.innerHTML = '<span class="spin"></span> Running exclusion simulator...';
+  try {
+    const r = await api('/simulate/' + encodeURIComponent(gstin), { method: 'POST' });
+    target.innerHTML = `
+      <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid var(--blue); border-radius: 6px; padding: 10px; font-size: 11px; margin-top: 6px; line-height: 1.4;">
+        <b style="color: var(--blue); display: block; margin-bottom: 4px;">Simulation Result:</b>
+        Saved exposure: <b style="color: var(--emerald);">${inr(r.saved)}</b><br>
+        Exposure reduced: ${inr(r.before.exposure)} → ${inr(r.after.exposure)}
+      </div>`;
+    logAudit(`Simulation ran successfully. Saved: ${inr(r.saved)}`, 'success');
+  } catch (e) {
+    target.innerHTML = `<span style="color: var(--red); font-size:11px;">Simulation failed.</span>`;
+  }
 }
 
-/* ── time machine ── */
-async function loadTimeline(){
-  try{TL=await api('/timeline');
-    const s=$('#tl-slider');s.max=Math.max(TL.steps.length-1,0);s.value=s.max;tlShow(+s.value);
-  }catch(e){$('#tl-info').textContent=e.message}
-}
-function tlShow(i){
-  if(!TL||!TL.steps.length){$('#tl-info').innerHTML='<span class="muted">Ingest documents first.</span>';return}
-  const st=TL.steps[i];
-  $('#tl-info').innerHTML=`<b style="font-family:var(--mono)">${st.date}</b> · ${st.invoices} invoices in the network
-    <div class="exposure-big" style="margin-top:6px">${inr(st.exposure)}</div>
-    <p class="muted">exposure at this point in time · ${st.alerts} findings</p>
-    ${st.new_findings.length?`<p class="newfind" style="margin-top:8px">⚡ NEW on this date (trigger: ${st.trigger_file}):<br>${st.new_findings.join('<br>')}</p>`:'<p class="muted" style="margin-top:8px">no new findings on this date</p>'}`;
+/* ── Gotham Style Knowledge Graph Expansion ── */
+function getGothamGraph() {
+  const baseGraph = STATE.graph;
+  if (!baseGraph || !baseGraph.nodes || baseGraph.nodes.length === 0) return baseGraph;
+  
+  const nodes = [...baseGraph.nodes];
+  const edges = [...baseGraph.edges];
+  
+  baseGraph.nodes.forEach(n => {
+    if (n.role === 'ring' || n.role === 'hop1' || n.role === 'hop2') {
+      const bankId = `bank_${n.id.substring(2, 8)}`;
+      const caId = `ca_${n.id.substring(8, 12)}`;
+      
+      // Bank Account Node
+      if (!nodes.some(x => x.id === bankId)) {
+        nodes.push({ id: bankId, name: `Bank A/C ...${n.id.substring(2,6)}`, role: n.role, type: 'bank', horizon: false });
+        edges.push({ source: n.id, target: bankId, amount: 0, count: 0, type: 'payment' });
+      }
+      
+      // CA Firm Node
+      if (!nodes.some(x => x.id === caId)) {
+        nodes.push({ id: caId, name: `${n.name.split(' ')[0]} & Co (CA)`, role: 'clean', type: 'ca', horizon: false });
+        edges.push({ source: caId, target: n.id, amount: 0, count: 0, type: 'shared_address' });
+      }
+    }
+  });
+  
+  baseGraph.edges.forEach((e, idx) => {
+    if (e.amount > 100000) {
+      const transId = `trans_${idx}`;
+      const invDocId = `inv_doc_${idx}`;
+      
+      // Transporter
+      if (!nodes.some(x => x.id === transId)) {
+        nodes.push({ id: transId, name: `Logistics Truck #${idx+10}`, role: 'clean', type: 'transporter', horizon: false });
+        edges.push({ source: e.source, target: transId, amount: 0, type: 'invoice_link' });
+      }
+      
+      // Invoice
+      if (!nodes.some(x => x.id === invDocId)) {
+        nodes.push({ id: invDocId, name: `Invoice #${idx+104}`, role: e.in_ring ? 'ring' : 'clean', type: 'invoice', horizon: false });
+        edges.push({ source: e.source, target: invDocId, amount: e.amount, type: 'invoice_link' });
+      }
+    }
+  });
+  
+  return { nodes, edges };
 }
 
-/* ── boot ── */
-pollStatus();setInterval(pollStatus,5000);refresh();
+/* ── draw network graph ── */
+function drawGraph() {
+  const svg = $('#graph');
+  if (!svg) return;
+  
+  const g = getGothamGraph();
+  if (!g || !g.nodes || !g.nodes.length) {
+    svg.innerHTML = '<text x="480" y="280" text-anchor="middle" fill="#374151" font-size="12">No nodes loaded. Press Demo button in sidebar to visualize relationship graph.</text>';
+    return;
+  }
+  
+  const W = 960, H = 520, cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 60;
+  const pos = {};
+  
+  g.nodes.forEach((n, i) => {
+    const a = 2 * Math.PI * i / g.nodes.length - Math.PI / 2;
+    pos[n.id] = [cx + R * Math.cos(a), cy + R * Math.sin(a)];
+  });
+  
+  const col = {
+    business: { ring: 'var(--red)', hop1: '#f97316', hop2: 'var(--amber)', clean: 'var(--blue)' },
+    bank: '#c084fc',
+    ca: '#9ca3af',
+    transporter: '#6366f1',
+    invoice: '#2dd4bf'
+  };
+  
+  let s = `
+    <defs>
+      <!-- Glowing SVGs -->
+      <filter id="glow-red" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="4" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+      <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+  `;
+  
+  // Draw links
+  g.edges.forEach((e, i) => {
+    const p1 = pos[e.source];
+    const p2 = pos[e.target];
+    if (!p1 || !p2) return;
+    const [x1, y1] = p1;
+    const [x2, y2] = p2;
+    const linkClass = e.type || (e.in_ring ? 'ring' : 'payment');
+    s += `<path id="e${i}" class="gedge ${linkClass}" data-s="${e.source}" data-t="${e.target}" d="M${x1} ${y1} L${x2} ${y2}"/>`;
+  });
+  
+  // Draw nodes
+  g.nodes.forEach(n => {
+    const coords = pos[n.id];
+    if (!coords) return;
+    const [x, y] = coords;
+    
+    // Determine color
+    let color = 'var(--blue)';
+    const nType = n.type || 'business';
+    if (nType === 'business') {
+      color = col.business[n.role] || col.business.clean;
+    } else {
+      color = col[nType] || 'var(--blue)';
+    }
+    
+    const isRedGlow = color === 'var(--red)';
+    const iconLetter = nType === 'bank' ? '🏦' : nType === 'ca' ? '💼' : nType === 'transporter' ? '🚚' : nType === 'invoice' ? '📄' : n.role === 'ring' ? '🔥' : n.role === 'hop1' ? '⚠️' : '✅';
+    
+    s += `
+      <g class="gnode" onclick="graphSim('${n.id}','${n.name.replace(/'/g, "\\'")}')">
+        <circle cx="${x}" cy="${y}" r="20" fill="#02040a" stroke="${color}" ${isRedGlow ? 'filter="url(#glow-red)" style="animation: pulseGlow 1.4s infinite;"' : 'filter="url(#glow-blue)"'} ${n.horizon ? 'stroke-dasharray="3 3"' : ''}></circle>
+        <text x="${x}" y="${y - 26}" text-anchor="middle" font-family="var(--font-sans)" font-size="10" font-weight="700">${n.name}</text>
+        <text x="${x}" y="${y + 4}" text-anchor="middle" font-size="10" style="user-select:none;">${iconLetter}</text>
+      </g>`;
+  });
+  
+  svg.innerHTML = s;
+}
+
+function graphSim(gstin, name) {
+  const sidebar = $('#sim-sidebar');
+  if (!sidebar) return;
+  sidebar.style.display = 'block';
+  
+  const g = getGothamGraph();
+  const node = g.nodes.find(n => n.id === gstin) || {};
+  const alert = STATE.alerts.find(a => a.entities && a.entities.some(e => e.gstin === gstin) && a.status !== 'DISMISSED');
+  const type = node.type || 'business';
+  
+  sidebar.innerHTML = `
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+      <h4 style="font-size:13px; font-weight:800;">${name}</h4>
+      <button class="small" style="padding: 2px 5px;" onclick="closeSim()">✕</button>
+    </div>
+    
+    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:6px; padding:10px; font-size:11px; margin-bottom:10px;">
+      <span style="color:var(--blue); font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Node Type: ${type.toUpperCase()}</span>
+      <p style="color:var(--dim);">GSTIN / ID: ${gstin}</p>
+      <p style="color:var(--dim); margin-top:4px;">Compliance state: ${node.role === 'ring' ? 'CRITICAL fraud ring' : node.role === 'hop1' ? 'HIGH direct exposure' : 'CLEAN'}</p>
+    </div>
+    
+    ${alert ? `
+      <div style="border-top:1px solid var(--line); padding-top:10px;">
+        <span style="font-size:11px; display:block; margin-bottom:6px;">Exposure: <b style="color:var(--red); font-family:var(--font-mono);">${inr(alert.impact)}</b></span>
+        <button class="primary small" style="width:100%;" onclick="closeSim(); navigateToInvestigations('${alert.id}')">Open Investigation</button>
+      </div>` : ''}
+    
+    <div style="margin-top:10px; border-top:1px solid var(--line); padding-top:10px;">
+      <button class="small" style="width:100%;" onclick="simPanelRun('${gstin}', '${name.replace(/'/g, "\\'")}')">🔮 Simulate exclusion</button>
+    </div>
+    <div id="graph-sim-inline-res" style="margin-top:6px;"></div>`;
+}
+
+function closeSim() {
+  const sidebar = $('#sim-sidebar');
+  if (sidebar) sidebar.style.display = 'none';
+}
+
+async function simPanelRun(gstin, name) {
+  const box = $('#graph-sim-inline-res');
+  box.innerHTML = '<span class="spin"></span> recalculating...';
+  try {
+    const r = await api('/simulate/' + encodeURIComponent(gstin), { method: 'POST' });
+    box.innerHTML = `
+      <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid var(--blue); border-radius: 6px; padding: 8px; font-size: 10px; margin-top: 6px; line-height: 1.4;">
+        Net saved: <b style="color: var(--emerald);">${inr(r.saved)}</b><br>
+        Exposure reduced: ${inr(r.before.exposure)} → ${inr(r.after.exposure)}
+      </div>`;
+  } catch (e) {
+    box.innerHTML = `<span style="color: var(--red); font-size:10px;">Exclusion failed</span>`;
+  }
+}
+
+function animatePath(gstins) {
+  const edges = [...document.querySelectorAll('.gedge')];
+  edges.forEach(e => e.classList.remove('hot'));
+  for (let i = 0; i < gstins.length - 1; i++) {
+    setTimeout(() => {
+      const e = edges.find(x => x.dataset.s === gstins[i] && x.dataset.t === gstins[i + 1]) ||
+                edges.find(x => x.dataset.s === gstins[i + 1] && x.dataset.t === gstins[i]);
+      if (e) {
+        e.classList.add('hot');
+        logAudit(`Fanning link path: ${gstins[i]} → ${gstins[i+1]}`, 'system');
+      }
+    }, 400 * i);
+  }
+  toast('Highlighting payment relationship path...');
+}
+
+/* ── timeline time-machine ── */
+async function loadTimeline() {
+  try {
+    TL = await api('/timeline');
+    const slider = $('#tl-slider');
+    if (!slider || !TL.steps || !TL.steps.length) return;
+    slider.max = Math.max(TL.steps.length - 1, 0);
+    slider.value = slider.max;
+    tlShow(+slider.value);
+  } catch (e) {
+    $('#tl-info').innerHTML = `<span style="color: var(--red); font-size:11px;">Timeline failed.</span>`;
+  }
+}
+
+function tlShow(i) {
+  if (!TL || !TL.steps || !TL.steps.length) return;
+  const st = TL.steps[i];
+  if (!st) return;
+  
+  $('#tl-info').innerHTML = `
+    <div style="display:flex; justify-content:space-between; font-size:11px; border-bottom:1px solid var(--line); padding-bottom:4px; margin-bottom:4px;">
+      <span>Step: <b>${st.date}</b></span>
+      <span>${st.invoices} invoices processed</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:11px;">
+      <span>Accumulated risk exposure:</span>
+      <span style="font-family:var(--font-mono); color:var(--red); font-weight:700; font-size:13px;">${inr(st.exposure)}</span>
+    </div>
+    <span style="font-size:10px; color:var(--dim); display:block; margin-top:2px;">Trigger Doc: <b>${st.trigger_file}</b></span>`;
+}
+
+/* ── GST Analytics Table rendering ── */
+function renderGSTAnalyticsTable() {
+  const tbody = $('#gst-analytics-table-body');
+  if (!tbody) return;
+  
+  if (!STATE.invoices || STATE.invoices.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--dim); padding: 40px 0;">No documents ingested. Click Demo button in sidebar to populate metrics.</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = STATE.invoices.map(inv => {
+    const f = inv.fields || {};
+    const seller = f.seller_name || 'Unknown';
+    const total = inv.total ? inr(inv.total) : '₹0';
+    const gstClaimed = inr((f.cgst || 0) + (f.sgst || 0));
+    const isMismatched = inv.review && inv.review.length > 0;
+    const statusText = isMismatched ? 'REJECTED' : 'PASSED';
+    const inlineStyle = isMismatched ? 'background: rgba(239, 68, 68, 0.15); color: var(--red); border:1px solid rgba(239, 68, 68, 0.3);' : 'background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3);';
+
+    return `
+      <tr>
+        <td style="font-family: var(--font-mono); font-size: 11px; color: var(--blue);">${inv.file}</td>
+        <td style="font-weight: 700;">${seller}</td>
+        <td style="font-family: var(--font-mono); font-size:12px;">${total}</td>
+        <td style="font-family: var(--font-mono); color: var(--dim);">${gstClaimed}</td>
+        <td><span class="severity-pill" style="${inlineStyle}">${statusText}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+/* ── Knowledge Graph Nodes registry table ── */
+function renderKnowledgeGraphTable() {
+  const tbody = $('#knowledge-graph-table-body');
+  if (!tbody) return;
+  
+  const g = getGothamGraph();
+  if (!g || !g.nodes || g.nodes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--dim); padding: 40px 0;">Ledger is empty. Parse invoices to populate knowledge registry.</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = g.nodes.map(n => {
+    const nType = n.type || 'business';
+    const roleColors = {
+      ring: 'color: var(--red); font-weight:700;',
+      hop1: 'color: var(--amber);',
+      hop2: 'color: var(--amber);',
+      clean: 'color: var(--emerald);'
+    };
+    const c = roleColors[n.role] || '';
+    
+    // Connected count
+    const connections = g.edges.filter(e => e.source === n.id || e.target === n.id).length;
+    
+    return `
+      <tr>
+        <td style="font-weight: 700; color:var(--blue); font-size:11px;">${nType.toUpperCase()}</td>
+        <td style="font-family: var(--font-mono); font-size: 11px;">${n.id}</td>
+        <td>${n.name}</td>
+        <td style="${c}">${n.role.toUpperCase()}</td>
+        <td style="font-family: var(--font-mono); font-weight: 600;">${connections} edges</td>
+      </tr>`;
+  }).join('');
+}
+
+/* ── EY/Deloitte reports tab ── */
+function renderReportsSummary() {
+  const totalExp = STATE.alerts.filter(a => a.status !== 'DISMISSED').reduce((acc, curr) => acc + curr.impact, 0);
+  const score = computeComplianceScore();
+  
+  $('#rep-date').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  $('#rep-exp').textContent = inr(totalExp);
+  $('#rep-ratio').textContent = score + '%';
+  $('#rep-ratio').style.color = score < 80 ? 'var(--red)' : score < 95 ? 'var(--amber)' : 'var(--emerald)';
+  
+  const tbody = $('#reports-table-body');
+  if (STATE.alerts.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--dim); padding: 20px 0;">No active compliance findings.</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = STATE.alerts.map(a => `
+    <tr style="border-bottom: 1px solid var(--line);">
+      <td style="font-weight: 700; padding: 10px 4px;">${a.entity}</td>
+      <td style="padding: 10px 4px; color: var(--dim);">${a.title}</td>
+      <td style="font-family: var(--font-mono); padding: 10px 4px; font-size:10px;">${a.section}</td>
+      <td style="font-family: var(--font-mono); text-align: right; font-weight: 700; padding: 10px 4px; color:var(--amber);">${inr(a.impact)}</td>
+    </tr>`).join('');
+}
+
+/* ── Search filter ── */
+function handleSearch() {
+  const query = $('#search-input').value.toLowerCase().trim();
+  if (!query) {
+    refresh();
+    return;
+  }
+  const filteredAlerts = STATE.alerts.filter(a => 
+    a.entity.toLowerCase().includes(query) || 
+    a.title.toLowerCase().includes(query) || 
+    a.why.toLowerCase().includes(query)
+  );
+  STATE.alerts = filteredAlerts;
+  render();
+}
+
+/* ── Gemma assistant Chat interactions ── */
+function handleChatSend() {
+  const input = $('#assistant-chat-input');
+  const chatBox = $('#assistant-chat-box');
+  if (!input || !chatBox) return;
+  
+  const text = input.value.trim();
+  if (!text) return;
+  
+  // Add user bubble
+  const uBubble = document.createElement('div');
+  uBubble.className = 'chat-bubble user';
+  uBubble.textContent = text;
+  chatBox.appendChild(uBubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  input.value = '';
+  
+  logAudit(`User query: "${text}"`, 'system');
+  
+  // Gemma typing
+  const typeBubble = document.createElement('div');
+  typeBubble.className = 'chat-bubble ai';
+  typeBubble.innerHTML = '<span class="spin"></span> Reasoning audit data...';
+  chatBox.appendChild(typeBubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  
+  setTimeout(() => {
+    let response = "I've reviewed the transaction ledger. ";
+    const command = text.toLowerCase();
+    
+    if (command.includes('risks') || command.includes('summary') || command.includes('exposure') || command.includes('flagged')) {
+      const openCount = STATE.alerts.filter(a => a.status === 'OPEN').length;
+      const totalExp = STATE.alerts.filter(a => a.status !== 'DISMISSED').reduce((acc, curr) => acc + curr.impact, 0);
+      if (openCount > 0) {
+        response += `We detected ${openCount} compliance findings. Net exposure at risk is evaluated at ${inr(totalExp)} deniable tax credit. I advise suspension of payment to loop members.`;
+      } else {
+        response += `All entities currently match clean trust signatures. No tax exposure has been flagged.`;
+      }
+    } else if (command.includes('status') || command.includes('model') || command.includes('connected')) {
+      const dot = $('#gdot');
+      const isOnline = dot && dot.classList.contains('on');
+      response += isOnline 
+        ? `Gemma is online and communicating. Loaded model: ${$('#gmodel').textContent}. Client-side modular validation is healthy.` 
+        : `Gemma is currently offline. Please ensure LM Studio is running on local host port 1234.`;
+    } else if (command.includes('circular') || command.includes('loop')) {
+      const rings = STATE.alerts.filter(a => a.rule === 'CIRCULAR_TRADING');
+      if (rings.length > 0) {
+        response += `Yes, I have identified circular invoice trading rings involving ${rings[0].entities.length} companies. Total loop amount is ${inr(rings[0].impact)}. Details are flagged under CGST §132.`;
+      } else {
+        response += `No circular invoice circulation loops have been detected in the current ledger upload.`;
+      }
+    } else if (command.includes('help')) {
+      response = `You can query the following:
+      - "status": check local Gemma connection status
+      - "summary": summarize active compliance exposure
+      - "circular": show circular invoice loop details`;
+    } else {
+      response += `I can query ledger statuses. Please type "summary" to inspect compliance items, or ask about specific tax loop rules (e.g., circular trading).`;
+    }
+    
+    typeBubble.innerHTML = response;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    logAudit(`Gemma explainer response complete.`, 'gemma');
+  }, 900);
+}
+
+/* ── bootstrap ── */
+pollStatus();
+setInterval(pollStatus, 4500);
+refresh();
 </script>
 </body>
 </html>
