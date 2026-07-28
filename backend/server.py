@@ -59,6 +59,21 @@ def status():
             "provider": "LM Studio (local)" if ok else "offline"}
 
 
+@app.get("/api/verify-gstin/{gstin}")
+def verify_gstin(gstin: str):
+    """Verify GSTIN structure and Modulo-36 checksum."""
+    raw = gstin.strip().upper()
+    fixed = extraction.gstin_structural_fix(raw)
+    valid = extraction.gstin_valid(fixed)
+    return {
+        "raw_gstin": raw,
+        "fixed_gstin": fixed,
+        "is_valid": valid,
+        "state_code": fixed[:2] if len(fixed) >= 2 else None,
+        "pan": fixed[2:12] if len(fixed) >= 12 else None
+    }
+
+
 @app.get("/api/state")
 def get_state():
     state = store.load()
