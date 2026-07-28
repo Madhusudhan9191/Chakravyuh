@@ -9,6 +9,26 @@ via LM Studio reads the paper and writes the paperwork; deterministic
 graph + arithmetic decide everything in between.
 
 
+## Prerequisites
+
+- **Python 3.10+**
+- **[LM Studio](https://lmstudio.ai/)** — load `gemma-4-E4B-it`, go to Developer tab → Start Server (port 1234)
+- **Tesseract OCR** (required by pytesseract for invoice image reading)
+  - **Windows:** Download installer from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
+  - **Mac:** `brew install tesseract`
+  - **Linux:** `sudo apt install tesseract-ocr`
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Offline LLM | Gemma 4 via LM Studio (OpenAI-compatible API) |
+| Backend | FastAPI + Uvicorn |
+| Graph Analysis | NetworkX |
+| OCR | Pytesseract + Pillow |
+| Compliance Rules | Deterministic Python rule engine |
+| UI | Single `index.html` — no build step, works offline |
+
 ## Run it (Windows / Mac)
 
 ```bash
