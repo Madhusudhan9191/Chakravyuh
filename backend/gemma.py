@@ -113,4 +113,4 @@ def generate_text(prompt, system=None):
     msg = resp["choices"][0]["message"]
     text = msg.get("content") or ""
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
-    return text, dt
+    return text, dt 
